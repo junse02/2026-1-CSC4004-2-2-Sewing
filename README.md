@@ -6,8 +6,7 @@
 <br/>
 
 # 0. Getting Started (시작하기)
-```bash
-$ npm start
+```
 ```
 [서비스 링크](https://www.naver.com/)
 
@@ -96,7 +95,7 @@ $ npm start
 ## 5.3 Backend
 |  |  |  |
 |-----------------|-----------------|-----------------|
-| Firebase    |  <img width="1200" height="781" alt="Image" src="https://github.com/user-attachments/assets/474e5c7d-406a-4c14-a18c-a2cae48aafce" />    | 4.0.5    |
+| Spring Boot    |  <img width="100" height="150" alt="SPB" src="https://github.com/user-attachments/assets/474e5c7d-406a-4c14-a18c-a2cae48aafce" />    | 4.0.5    |
 
 <br/>
 
