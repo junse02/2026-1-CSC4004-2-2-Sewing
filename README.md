@@ -25,7 +25,7 @@
 |:------:|:------:|:------:|:------:|
 | <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="박서연" width="150"> | <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="성준서" width="150"> | <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="손효리" width="150"> | <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="황병부" width="150"> |
 | PL | FE | FE | FE |
-| [GitHub](https://github.com/seoyeon435) | [GitHub](https://github.com/junse02) | [GitHub](https://github.com/dogdevelophoyri) | [GitHub](https://github.com/conconcc) |
+| [GitHub](https://github.com/seoyeon435) | [GitHub](https://github.com/junse02) | [GitHub](https://github.com/dogdevelophoyri) | [GitHub](https://github.com/GGARA02) |
 
 <br/>
 <br/>
