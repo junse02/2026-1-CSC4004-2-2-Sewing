@@ -1,4 +1,4 @@
-package com.youngtwenty.cider;
+package com.mediator.cider;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
