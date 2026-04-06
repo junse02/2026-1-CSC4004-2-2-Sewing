@@ -3,7 +3,7 @@ spring:
     # localhost:5432는 내 컴퓨터, cider_db는 아까 pgAdmin에서 만든 이름
     url: jdbc:postgresql://localhost:5432/cider_db
     username: postgres                             # 기본 계정명
-    password: {PostgreSQL 비밀번호 입력}                             # 비밀번호
+    password: sw0202                               # 비밀번호
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -19,4 +19,5 @@ spring:
   # AI 에러 방지용 (임시키 입력)
   ai:
     openai:
-      api-key: sk-test-key
+      api-key: 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
+      # 병부님 gpt api-key
