@@ -96,7 +96,7 @@
 |  |  |  |
 |-----------------|-----------------|-----------------|
 | Spring Boot    |  <img width="100" height="150" alt="SPB" src="https://github.com/user-attachments/assets/474e5c7d-406a-4c14-a18c-a2cae48aafce" />    | 4.0.5    |
-| PostgreSQL     |  | 17.9 |
+| PostgreSQL     |  <img width="100" height="150" alt="Image" src="https://github.com/user-attachments/assets/91164609-0638-4fa5-b101-c4339e10b162" />  | 17.9 |
 
 <br/>
 
