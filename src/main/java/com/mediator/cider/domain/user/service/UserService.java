@@ -4,6 +4,7 @@ import com.mediator.cider.domain.user.dto.UserJoinRequest;
 import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     /**
      * 회원가입 로직
@@ -28,9 +30,8 @@ public class UserService {
         // 1. 이메일 중복 검증
         validateDuplicateEmail(request.getEmail());
 
-        // 2. 비밀번호 암호화 (TODO: Spring Security 도입 시 BCrypt 적용 필요)
-        // 지금은 임시로 클라이언트가 보낸 비밀번호를 그대로 사용합니다.
-        String encodedPassword = request.getPassword();
+        // 2. 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         // 3. DTO -> Entity 변환 및 저장
         User user = request.toEntity(encodedPassword);

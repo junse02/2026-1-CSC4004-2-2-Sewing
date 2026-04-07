@@ -1,12 +1,14 @@
 package com.mediator.cider.domain.user.service;
 
 import com.mediator.cider.domain.user.dto.UserJoinRequest;
+import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -59,5 +61,34 @@ class UserServiceTest {
         assertThrows(IllegalStateException.class, () -> {
             userService.join(request2);
         });
+    }
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder; // 암호화 도구 주입
+
+    @Test
+    @DisplayName("회원가입 시 비밀번호가 암호화되어 저장되어야 한다")
+    void password_encryption_test() {
+        // given
+        String rawPassword = "myPassword123!";
+        UserJoinRequest request = UserJoinRequest.builder()
+                .email("encrypt@test.com")
+                .password(rawPassword)
+                .nickname("보안전문가")
+                .build();
+
+        // when
+        Long savedId = userService.join(request);
+        User savedUser = userRepository.findById(savedId).orElseThrow();
+
+        // then
+        // 1. 저장된 비밀번호는 평문(원본)과 달라야 함
+        assertThat(savedUser.getPassword()).isNotEqualTo(rawPassword);
+
+        // 2. 암호화된 비밀번호가 BCrypt 형식인지, 원본과 일치하는지 확인
+        // passwordEncoder.matches(평문, 암호문)를 사용해야 합니다.
+        assertThat(passwordEncoder.matches(rawPassword, savedUser.getPassword())).isTrue();
+
+        System.out.println("암호화된 비밀번호: " + savedUser.getPassword());
     }
 }
