@@ -1,12 +1,16 @@
 package com.mediator.cider.domain.user.service;
 
 import com.mediator.cider.domain.user.dto.UserJoinRequest;
+import com.mediator.cider.domain.user.dto.UserLoginRequest;
+import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -58,6 +62,78 @@ class UserServiceTest {
         // when & then (실행 시 예외가 발생하는지 확인)
         assertThrows(IllegalStateException.class, () -> {
             userService.join(request2);
+        });
+    }
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder; // 암호화 도구 주입
+
+    @Test
+    @DisplayName("회원가입 시 비밀번호가 암호화되어 저장되어야 한다")
+    void password_encryption_test() {
+        // given
+        String rawPassword = "myPassword123!";
+        UserJoinRequest request = UserJoinRequest.builder()
+                .email("encrypt@test.com")
+                .password(rawPassword)
+                .nickname("보안전문가")
+                .build();
+
+        // when
+        Long savedId = userService.join(request);
+        User savedUser = userRepository.findById(savedId).orElseThrow();
+
+        // then
+        // 1. 저장된 비밀번호는 평문(원본)과 달라야 함
+        assertThat(savedUser.getPassword()).isNotEqualTo(rawPassword);
+
+        // 2. 암호화된 비밀번호가 BCrypt 형식인지, 원본과 일치하는지 확인
+        // passwordEncoder.matches(평문, 암호문)를 사용해야 합니다.
+        assertThat(passwordEncoder.matches(rawPassword, savedUser.getPassword())).isTrue();
+
+        System.out.println("암호화된 비밀번호: " + savedUser.getPassword());
+    }
+
+    @Test
+    @DisplayName("가입 후 바로 로그인하는 통합 시나리오 테스트")
+    void join_and_login_scenario_test() {
+        // 1. Given: 가입 데이터 준비 및 가입 실행
+        String email = "scenario@test.com";
+        String password = "password123";
+
+        UserJoinRequest joinRequest = UserJoinRequest.builder()
+                .email(email)
+                .password(password)
+                .nickname("시나리오유저")
+                .build();
+
+        Long joinedId = userService.join(joinRequest); // 회원가입
+
+        // 2. When: 방금 가입한 정보와 동일한 정보로 로그인 시도
+        UserLoginRequest loginRequest = new UserLoginRequest(email, password);
+        Long loginId = userService.login(loginRequest); // 로그인
+
+        // 3. Then: 가입한 ID와 로그인 후 반환된 ID가 일치하는지 검증
+        assertThat(loginId).isEqualTo(joinedId);
+        assertThat(loginId).isNotNull();
+    }
+
+    @Test
+    @DisplayName("비밀번호 불일치 시 로그인 실패")
+    void login_fail_wrong_password() {
+        // given
+        UserJoinRequest joinRequest = UserJoinRequest.builder()
+                .email("wrong_pw@test.com")
+                .password("correct123")
+                .nickname("비번틀릴유저")
+                .build();
+        userService.join(joinRequest);
+
+        // when & then (틀린 비밀번호 입력 시 예외 발생 확인)
+        UserLoginRequest loginRequest = new UserLoginRequest("wrong_pw@test.com", "wrong123");
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            userService.login(loginRequest);
         });
     }
 }

@@ -1,6 +1,7 @@
 package com.mediator.cider.domain.user.controller;
 
 import com.mediator.cider.domain.user.dto.UserJoinRequest;
+import com.mediator.cider.domain.user.dto.UserLoginRequest;
 import com.mediator.cider.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,12 @@ public class UserController {
     @PostMapping("/join")
     public ResponseEntity<Long> join(@RequestBody UserJoinRequest request) {
         Long userId = userService.join(request);
+        return ResponseEntity.ok(userId);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Long> login(@RequestBody UserLoginRequest request) {
+        Long userId = userService.login(request);
         return ResponseEntity.ok(userId);
     }
 }
