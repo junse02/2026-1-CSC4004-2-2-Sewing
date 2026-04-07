@@ -1,8 +1,10 @@
 package com.mediator.cider.domain.user.service;
 
 import com.mediator.cider.domain.user.dto.UserJoinRequest;
+import com.mediator.cider.domain.user.dto.UserLoginRequest;
 import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,5 +92,48 @@ class UserServiceTest {
         assertThat(passwordEncoder.matches(rawPassword, savedUser.getPassword())).isTrue();
 
         System.out.println("암호화된 비밀번호: " + savedUser.getPassword());
+    }
+
+    @Test
+    @DisplayName("가입 후 바로 로그인하는 통합 시나리오 테스트")
+    void join_and_login_scenario_test() {
+        // 1. Given: 가입 데이터 준비 및 가입 실행
+        String email = "scenario@test.com";
+        String password = "password123";
+
+        UserJoinRequest joinRequest = UserJoinRequest.builder()
+                .email(email)
+                .password(password)
+                .nickname("시나리오유저")
+                .build();
+
+        Long joinedId = userService.join(joinRequest); // 회원가입
+
+        // 2. When: 방금 가입한 정보와 동일한 정보로 로그인 시도
+        UserLoginRequest loginRequest = new UserLoginRequest(email, password);
+        Long loginId = userService.login(loginRequest); // 로그인
+
+        // 3. Then: 가입한 ID와 로그인 후 반환된 ID가 일치하는지 검증
+        assertThat(loginId).isEqualTo(joinedId);
+        assertThat(loginId).isNotNull();
+    }
+
+    @Test
+    @DisplayName("비밀번호 불일치 시 로그인 실패")
+    void login_fail_wrong_password() {
+        // given
+        UserJoinRequest joinRequest = UserJoinRequest.builder()
+                .email("wrong_pw@test.com")
+                .password("correct123")
+                .nickname("비번틀릴유저")
+                .build();
+        userService.join(joinRequest);
+
+        // when & then (틀린 비밀번호 입력 시 예외 발생 확인)
+        UserLoginRequest loginRequest = new UserLoginRequest("wrong_pw@test.com", "wrong123");
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            userService.login(loginRequest);
+        });
     }
 }

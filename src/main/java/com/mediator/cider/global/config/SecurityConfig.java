@@ -31,7 +31,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/api/users/join" // 회원가입 API도 누구나 접근 가능하게 허용
+                                "/api/users/join", // 회원가입 API도 누구나 접근 가능하게 허용
+                                "/api/users/login" // 로그인 API 허용 추가
                         ).permitAll() // 위 경로는 로그인 없이 허용
                         .anyRequest().authenticated() // 그 외 나머지는 로그인 필요
                 );

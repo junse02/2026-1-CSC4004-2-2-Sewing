@@ -1,6 +1,7 @@
 package com.mediator.cider.domain.user.service;
 
 import com.mediator.cider.domain.user.dto.UserJoinRequest;
+import com.mediator.cider.domain.user.dto.UserLoginRequest;
 import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +48,22 @@ public class UserService {
         if (userRepository.existsByEmail(email)) {
             throw new IllegalStateException("이미 존재하는 이메일입니다.");
         }
+    }
+
+    /**
+     * 로그인 로직
+     * @return 로그인 성공 시 유저 ID (나중에 토큰이나 세션으로 발전시킬 예정)
+     */
+    public Long login(UserLoginRequest request) {
+        // 1. 이메일로 유저 찾기
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 이메일입니다."));
+
+        // 2. 비밀번호 일치 확인 (평문 비번, 암호화된 비번)
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        return user.getId();
     }
 }

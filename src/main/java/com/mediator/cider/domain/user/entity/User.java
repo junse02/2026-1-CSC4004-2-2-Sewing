@@ -3,10 +3,7 @@ package com.mediator.cider.domain.user.entity;
 
 import com.mediator.cider.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * 서비스의 회원 정보를 담는 엔티티
@@ -15,9 +12,11 @@ import lombok.NoArgsConstructor;
  */
 
 @Entity
-@Table(name = "users")
+@Table(name = "users"   )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 기본 생성자 (보안을 위한 PROTECTED)
+@AllArgsConstructor
+@Builder
 public class User extends BaseTimeEntity {
 
     @Id
