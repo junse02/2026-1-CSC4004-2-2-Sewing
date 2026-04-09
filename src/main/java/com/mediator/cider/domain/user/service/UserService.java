@@ -4,6 +4,7 @@ import com.mediator.cider.domain.user.dto.UserJoinRequest;
 import com.mediator.cider.domain.user.dto.UserLoginRequest;
 import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.domain.user.repository.UserRepository;
+import com.mediator.cider.global.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     /**
      * 회원가입 로직
@@ -54,7 +56,7 @@ public class UserService {
      * 로그인 로직
      * @return 로그인 성공 시 유저 ID (나중에 토큰이나 세션으로 발전시킬 예정)
      */
-    public Long login(UserLoginRequest request) {
+    public String login(UserLoginRequest request) {
         // 1. 이메일로 유저 찾기
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 이메일입니다."));
@@ -64,6 +66,6 @@ public class UserService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        return user.getId();
+        return jwtProvider.createToken(user.getEmail());
     }
 }
