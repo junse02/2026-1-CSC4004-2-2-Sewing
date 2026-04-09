@@ -33,8 +33,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Long> login(@RequestBody UserLoginRequest request) {
-        Long userId = userService.login(request);
-        return ResponseEntity.ok(userId);
+    public ResponseEntity<String> login(@RequestBody UserLoginRequest request) {
+        String token = userService.login(request); // 여기서 이제 토큰 문자열이 넘어옵니다.
+        return ResponseEntity.ok(token);
     }
 }
