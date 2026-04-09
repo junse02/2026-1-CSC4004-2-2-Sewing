@@ -7,6 +7,11 @@ import io.jsonwebtoken.Jwts;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
+/**
+ * JWT 토큰 발급하는 클래스
+ * 작성자: 성준서
+ */
+
 @Component
 public class JwtProvider {
 
@@ -30,5 +35,29 @@ public class JwtProvider {
                 .expiration(validity)
                 .signWith(key) // 우리만의 비밀키로 서명!
                 .compact();
+    }
+
+    // 1. 토큰에서 이메일 추출
+    public String getSubject(String token) {
+        return Jwts.parser()
+                .verifyWith(key) // 우리 비밀키로 복호화 준비
+                .build()
+                .parseSignedClaims(token) // 토큰 해석
+                .getPayload()
+                .getSubject(); // 이메일 반환
+    }
+
+    // 2. 토큰 유효성 검사 (만료 여부 등)
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (Exception e) {
+            // 토큰이 변조되었거나 만료된 경우 false
+            return false;
+        }
     }
 }
