@@ -25,7 +25,7 @@
 |:------:|:------:|:------:|:------:|
 | <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="박서연" width="150"> | <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="성준서" width="150"> | <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="손효리" width="150"> | <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="황병부" width="150"> |
 | PL | FE | FE | FE |
-| [GitHub](https://github.com/LDK1009) | [GitHub](https://github.com/junse02) | [GitHub](https://github.com/nay3on) | [GitHub](https://github.com/conconcc) |
+| [GitHub](https://github.com/seoyeon435) | [GitHub](https://github.com/junse02) | [GitHub](https://github.com/dogdevelophoyri) | [GitHub](https://github.com/GGARA02) |
 
 <br/>
 <br/>
@@ -96,7 +96,7 @@
 |  |  |  |
 |-----------------|-----------------|-----------------|
 | Spring Boot    |  <img width="100" height="150" alt="SPB" src="https://github.com/user-attachments/assets/474e5c7d-406a-4c14-a18c-a2cae48aafce" />    | 4.0.5    |
-| PostgreSQL     |  | 17.9 |
+| PostgreSQL     |  <img width="100" height="150" alt="Image" src="https://github.com/user-attachments/assets/91164609-0638-4fa5-b101-c4339e10b162" />  | 17.9 |
 
 <br/>
 
@@ -140,8 +140,11 @@ project/
 - Main Branch
   - 배포 가능한 상태의 코드를 유지합니다.
   - 모든 배포는 이 브랜치에서 이루어집니다.
-  
-- {name} Branch
+
+- Dev
+  - 개발 브랜치로, 팀원들은 Dev 브랜치에서 항상 최신 코드를 받아와 작업합니다.
+    
+- type/기능설명/{name} Branch
   - 팀원 각자의 개발 브랜치입니다.
   - 모든 기능 개발은 이 브랜치에서 이루어집니다.
 
