@@ -24,8 +24,8 @@ public class UserController {
      * @param request 회원정보 (JSON 바디)
      * @return 생성된 회원의 ID와 함께 200 OK 응답
      */
-    @PostMapping("/join")
-    public ResponseEntity<Long> join(@RequestBody UserJoinRequest request) {
+    @PostMapping("/signup")
+    public ResponseEntity<Long> signup(@RequestBody UserJoinRequest request) {
         Long userId = userService.join(request);
         return ResponseEntity.ok(userId);
     }
