@@ -5,6 +5,8 @@ import com.mediator.cider.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 /**
  * 서비스의 회원 정보를 담는 엔티티
  * 작성자: 성준서
@@ -33,6 +35,8 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, length = 50)
     private String nickname; // 서비스 내 활동 닉네임
 
+    private LocalDateTime deletedAt; // 회원 탈퇴 일시
+
     /**
      * 회원 생성을 위한 빌더 패턴 적용
      */
@@ -46,5 +50,9 @@ public class User extends BaseTimeEntity {
     // 회원 정보 수정 등이 필요할 때 여기에 메서드를 추가
     public void updateNickname(String newNickname) {
         this.nickname = newNickname;
+    }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

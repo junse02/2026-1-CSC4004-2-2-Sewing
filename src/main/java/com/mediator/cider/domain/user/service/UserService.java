@@ -47,7 +47,7 @@ public class UserService {
      * 중복 이메일 확인 전용 메서드
      */
     private void validateDuplicateEmail(String email) {
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmailAndDeletedAtIsNull(email)) {
             throw new IllegalStateException("이미 존재하는 이메일입니다.");
         }
     }
@@ -58,7 +58,7 @@ public class UserService {
      */
     public String login(UserLoginRequest request) {
         // 1. 이메일로 유저 찾기
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmailAndDeletedAtIsNull(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 이메일입니다."));
 
         // 2. 비밀번호 일치 확인 (평문 비번, 암호화된 비번)
@@ -67,5 +67,18 @@ public class UserService {
         }
 
         return jwtProvider.createToken(user.getEmail());
+    }
+
+    /**
+     * 회원탈퇴 로직
+     * @param email 탈퇴할 회원의 이메일 (인증된 유저 정보 기반)
+     */
+    @Transactional
+    public void deleteUser(String email) {
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        
+        // Soft delete 처리
+        user.delete();
     }
 }
