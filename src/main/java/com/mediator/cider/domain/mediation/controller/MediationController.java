@@ -3,6 +3,7 @@ package com.mediator.cider.domain.mediation.controller;
 import com.mediator.cider.domain.mediation.dto.MediationRecordRequest;
 import com.mediator.cider.domain.mediation.dto.MediationSessionResponse;
 import com.mediator.cider.domain.mediation.service.MediationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,8 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "sewing-controller", description = "갈등 중재(sewing) 관련 API")
 @RestController
-@RequestMapping("/api/sewing")
+@RequestMapping("/api/sewings")
 @RequiredArgsConstructor
 public class MediationController {
 

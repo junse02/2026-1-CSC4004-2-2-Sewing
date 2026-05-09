@@ -3,6 +3,7 @@ package com.mediator.cider.domain.user.controller;
 import com.mediator.cider.domain.user.dto.FriendAddRequest;
 import com.mediator.cider.domain.user.dto.FriendResponse;
 import com.mediator.cider.domain.user.service.FriendService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "friend-controller", description = "친구 추가 및 목록 조회 API")
 @RestController
 @RequestMapping("/api/friends")
 @RequiredArgsConstructor

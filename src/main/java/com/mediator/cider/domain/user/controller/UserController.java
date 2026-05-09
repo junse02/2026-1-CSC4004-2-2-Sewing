@@ -5,6 +5,7 @@ import com.mediator.cider.domain.user.dto.UserLoginRequest;
 import com.mediator.cider.domain.user.dto.UserProfileResponse;
 import com.mediator.cider.domain.user.dto.UserProfileUpdateRequest;
 import com.mediator.cider.domain.user.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
  * 회원 관련 API 요청을 처리하는 컨트롤러
  * 작성자: 성준서
  */
+@Tag(name = "user-controller", description = "회원 가입, 로그인 및 마이페이지 API")
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor

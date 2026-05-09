@@ -3,11 +3,13 @@ package com.mediator.cider.domain.attachment.controller;
 import com.mediator.cider.domain.attachment.dto.AttachmentResultResponse;
 import com.mediator.cider.domain.attachment.dto.AttachmentSurveyRequest;
 import com.mediator.cider.domain.attachment.service.AttachmentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "attachment-controller", description = "애착 유형 설문 및 결과 관련 API")
 @RestController
 @RequestMapping("/api/attachments")
 @RequiredArgsConstructor
