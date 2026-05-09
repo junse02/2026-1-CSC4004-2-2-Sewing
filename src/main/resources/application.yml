@@ -1,9 +1,9 @@
 spring:
   datasource:
     # localhost:5432는 내 컴퓨터, cider_db는 아까 pgAdmin에서 만든 이름
-    url: jdbc:postgresql://localhost:5432/cider_db
-    username: postgres                             # 기본 계정명
-    password: sw0202                               # 비밀번호
+    url: jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres
+    username: postgres.btuopynrwnqkktxsqjys          # 기본 계정명
+    password: 84jegrelafzRIuz8                       # 비밀번호
     driver-class-name: org.postgresql.Driver
 
   jpa:
