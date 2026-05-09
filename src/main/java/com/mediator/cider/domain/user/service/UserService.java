@@ -5,6 +5,7 @@ import com.mediator.cider.domain.attachment.repository.UserAttachmentRepository;
 import com.mediator.cider.domain.user.dto.UserJoinRequest;
 import com.mediator.cider.domain.user.dto.UserLoginRequest;
 import com.mediator.cider.domain.user.dto.UserProfileResponse;
+import com.mediator.cider.domain.user.dto.UserProfileUpdateRequest;
 import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.domain.user.repository.UserRepository;
 import com.mediator.cider.global.JwtProvider;
@@ -88,6 +89,28 @@ public class UserService {
                 .orElse(null);
 
         // 3. 응답용 DTO 생성 후 반환
+        return UserProfileResponse.of(user, attachment != null ? attachment.getType() : null);
+    }
+
+    /**
+     * 내 프로필 수정 로직 (애착 유형은 제외)
+     * @param email 수정할 회원의 이메일
+     * @param request 수정할 데이터 (닉네임, 성별, MBTI)
+     * @return 수정이 완료된 프로필 응답 DTO
+     */
+    @Transactional
+    public UserProfileResponse updateMyProfile(String email, UserProfileUpdateRequest request) {
+        // 1. 유저 찾기
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        // 2. 프로필 정보 업데이트 (JPA Dirty Checking 덕분에 save() 생략 가능)
+        user.updateProfile(request.getNickname(), request.getGender(), request.getMbti());
+
+        // 3. 업데이트된 정보를 기반으로 DTO 반환 (애착 유형은 변하지 않으므로 기존 로직 재활용)
+        UserAttachment attachment = userAttachmentRepository.findByUserId(user.getId())
+                .orElse(null);
+                
         return UserProfileResponse.of(user, attachment != null ? attachment.getType() : null);
     }
 

@@ -55,15 +55,11 @@ public class User extends BaseTimeEntity {
         this.mbti = mbti;
     }
 
-    // 회원 정보 수정 등이 필요할 때 여기에 메서드를 추가
-    public void updateNickname(String newNickname) {
-        this.nickname = newNickname;
-    }
-
+    // 부분 수정을 고려하여 값이 들어왔을 때만 변경되도록 처리
     public void updateProfile(String nickname, String gender, String mbti) {
-        this.nickname = nickname;
-        this.gender = gender;
-        this.mbti = mbti;
+        if (nickname != null) this.nickname = nickname;
+        if (gender != null) this.gender = gender;
+        if (mbti != null) this.mbti = mbti;
     }
 
     public void delete() {

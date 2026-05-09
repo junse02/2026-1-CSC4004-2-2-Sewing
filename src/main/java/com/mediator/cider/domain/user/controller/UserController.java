@@ -3,6 +3,7 @@ package com.mediator.cider.domain.user.controller;
 import com.mediator.cider.domain.user.dto.UserJoinRequest;
 import com.mediator.cider.domain.user.dto.UserLoginRequest;
 import com.mediator.cider.domain.user.dto.UserProfileResponse;
+import com.mediator.cider.domain.user.dto.UserProfileUpdateRequest;
 import com.mediator.cider.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -42,17 +43,35 @@ public class UserController {
      * @param authentication 현재 인증된 사용자의 정보
      * @return 닉네임, 성별, MBTI, 애착유형, 가입일 등이 포함된 프로필 DTO 반환
      */
-    @GetMapping("/me")
+    @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getMyInfo(Authentication authentication) {
         if (authentication == null) {
             return ResponseEntity.status(401).build();
         }
         
-        // JWT 필터 등에서 저장한 사용자 식별자(이메일)를 가져옴
         String email = authentication.getName();
-        
         UserProfileResponse profile = userService.getMyProfile(email);
         return ResponseEntity.ok(profile);
+    }
+
+    /**
+     * 마이페이지 프로필 수정 API (애착유형 제외)
+     * @param authentication 현재 인증된 사용자의 정보
+     * @param request 수정할 데이터 (닉네임, 성별, MBTI)
+     * @return 수정이 반영된 전체 프로필 정보
+     */
+    @PatchMapping("/profile_edit")
+    public ResponseEntity<UserProfileResponse> updateMyInfo(
+            Authentication authentication,
+            @RequestBody UserProfileUpdateRequest request) {
+            
+        if (authentication == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        String email = authentication.getName();
+        UserProfileResponse updatedProfile = userService.updateMyProfile(email, request);
+        return ResponseEntity.ok(updatedProfile);
     }
 
     /**
