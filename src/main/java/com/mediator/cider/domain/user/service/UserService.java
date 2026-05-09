@@ -1,7 +1,10 @@
 package com.mediator.cider.domain.user.service;
 
+import com.mediator.cider.domain.attachment.entity.UserAttachment;
+import com.mediator.cider.domain.attachment.repository.UserAttachmentRepository;
 import com.mediator.cider.domain.user.dto.UserJoinRequest;
 import com.mediator.cider.domain.user.dto.UserLoginRequest;
+import com.mediator.cider.domain.user.dto.UserProfileResponse;
 import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.domain.user.repository.UserRepository;
 import com.mediator.cider.global.JwtProvider;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserAttachmentRepository userAttachmentRepository; // 애착유형 조회를 위해 추가
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
@@ -67,6 +71,24 @@ public class UserService {
         }
 
         return jwtProvider.createToken(user.getEmail());
+    }
+
+    /**
+     * 내 프로필(마이페이지) 조회 로직
+     * @param email 조회할 회원의 이메일
+     * @return 유저 프로필 정보 DTO
+     */
+    public UserProfileResponse getMyProfile(String email) {
+        // 1. 유저 기본 정보 조회
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        // 2. 유저 애착유형 정보 조회 (없을 수도 있음)
+        UserAttachment attachment = userAttachmentRepository.findByUserId(user.getId())
+                .orElse(null);
+
+        // 3. 응답용 DTO 생성 후 반환
+        return UserProfileResponse.of(user, attachment != null ? attachment.getType() : null);
     }
 
     /**

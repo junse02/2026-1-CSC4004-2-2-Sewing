@@ -2,6 +2,7 @@ package com.mediator.cider.domain.user.controller;
 
 import com.mediator.cider.domain.user.dto.UserJoinRequest;
 import com.mediator.cider.domain.user.dto.UserLoginRequest;
+import com.mediator.cider.domain.user.dto.UserProfileResponse;
 import com.mediator.cider.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -36,15 +37,22 @@ public class UserController {
         return ResponseEntity.ok(token);
     }
 
-    // TODO: 해당 코드 다듬을 필요 있음
-    // jwt 필터 확인위해 만든 껍데기 기능
+    /**
+     * 내 프로필(마이페이지) 조회 API
+     * @param authentication 현재 인증된 사용자의 정보
+     * @return 닉네임, 성별, MBTI, 애착유형, 가입일 등이 포함된 프로필 DTO 반환
+     */
     @GetMapping("/me")
-    public ResponseEntity<String> getMyInfo(Authentication authentication) {
-        // 필터를 통과했다면 authentication 객체에 유저 정보(이메일)가 들어있습니다.
+    public ResponseEntity<UserProfileResponse> getMyInfo(Authentication authentication) {
         if (authentication == null) {
-            return ResponseEntity.status(401).body("인증되지 않은 사용자입니다.");
+            return ResponseEntity.status(401).build();
         }
-        return ResponseEntity.ok("현재 로그인한 유저: " + authentication.getName());
+        
+        // JWT 필터 등에서 저장한 사용자 식별자(이메일)를 가져옴
+        String email = authentication.getName();
+        
+        UserProfileResponse profile = userService.getMyProfile(email);
+        return ResponseEntity.ok(profile);
     }
 
     /**

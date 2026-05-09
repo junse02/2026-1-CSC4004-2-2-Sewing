@@ -34,6 +34,12 @@ public class User extends BaseTimeEntity {
 
     @Column(nullable = false, length = 50)
     private String nickname; // 서비스 내 활동 닉네임
+    
+    @Column(length = 20)
+    private String gender; // 성별
+
+    @Column(length = 10)
+    private String mbti; // MBTI
 
     private LocalDateTime deletedAt; // 회원 탈퇴 일시
 
@@ -41,15 +47,23 @@ public class User extends BaseTimeEntity {
      * 회원 생성을 위한 빌더 패턴 적용
      */
     @Builder
-    public User(String email, String password, String nickname) {
+    public User(String email, String password, String nickname, String gender, String mbti) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.gender = gender;
+        this.mbti = mbti;
     }
 
     // 회원 정보 수정 등이 필요할 때 여기에 메서드를 추가
     public void updateNickname(String newNickname) {
         this.nickname = newNickname;
+    }
+
+    public void updateProfile(String nickname, String gender, String mbti) {
+        this.nickname = nickname;
+        this.gender = gender;
+        this.mbti = mbti;
     }
 
     public void delete() {
