@@ -1,11 +1,14 @@
 package com.mediator.cider.domain.mediation.controller;
 
 import com.mediator.cider.domain.mediation.dto.MediationRecordRequest;
+import com.mediator.cider.domain.mediation.dto.MediationSessionResponse;
 import com.mediator.cider.domain.mediation.service.MediationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/sewing")
@@ -50,5 +53,15 @@ public class MediationController {
         String email = authentication.getName();
         String resultMessage = mediationService.submitRecord(email, sessionId, round, request);
         return ResponseEntity.ok(resultMessage);
+    }
+
+    /**
+     * 내 갈등 중재 방 목록 조회 (대기 중, 진행 중, 완료 모두 포함)
+     */
+    @GetMapping("/session-list")
+    public ResponseEntity<List<MediationSessionResponse>> getMyRooms(Authentication authentication) {
+        String email = authentication.getName();
+        List<MediationSessionResponse> rooms = mediationService.getMySessions(email);
+        return ResponseEntity.ok(rooms);
     }
 }

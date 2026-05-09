@@ -1,6 +1,7 @@
 package com.mediator.cider.domain.mediation.service;
 
 import com.mediator.cider.domain.mediation.dto.MediationRecordRequest;
+import com.mediator.cider.domain.mediation.dto.MediationSessionResponse;
 import com.mediator.cider.domain.mediation.entity.MediationRecord;
 import com.mediator.cider.domain.mediation.entity.MediationSession;
 import com.mediator.cider.domain.mediation.entity.MediationStatus;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -113,10 +115,31 @@ public class MediationService {
         // 두 명 모두 제출했는지 확인 후 다음 라운드로 이동 처리
         List<MediationRecord> roundRecords = recordRepository.findBySessionIdAndRoundNumber(sessionId, round);
         if (roundRecords.size() == 2) {
-            session.advanceRound();
-            return round + "라운드 제출이 완료되었습니다. 두 명 모두 제출하여 " + session.getCurrentRound() + "라운드로 넘어갑니다!";
+            // 특정 라운드(예: 3라운드)가 마지막 라운드라고 가정할 경우, 여기서 완료 상태로 변경 가능합니다.
+            // 임시로 3라운드를 마지막이라고 가정해 보겠습니다.
+            if (session.getCurrentRound() >= 3) {
+                session.completeMediation();
+                return round + "라운드 제출이 완료되었습니다. 두 명 모두 제출하여 갈등 중재가 최종 완료(COMPLETED) 되었습니다!";
+            } else {
+                session.advanceRound();
+                return round + "라운드 제출이 완료되었습니다. 두 명 모두 제출하여 " + session.getCurrentRound() + "라운드로 넘어갑니다!";
+            }
         }
 
         return round + "라운드 제출이 완료되었습니다. 상대방의 제출을 기다리는 중입니다.";
+    }
+
+    /**
+     * 내가 참여 중이거나 완료된 모든 방 목록 조회
+     */
+    public List<MediationSessionResponse> getMySessions(String email) {
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        List<MediationSession> sessions = sessionRepository.findAllByUser(user);
+
+        return sessions.stream()
+                .map(MediationSessionResponse::from)
+                .collect(Collectors.toList());
     }
 }

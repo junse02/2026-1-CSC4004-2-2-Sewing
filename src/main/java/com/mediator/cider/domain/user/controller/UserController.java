@@ -60,7 +60,7 @@ public class UserController {
      * @param request 수정할 데이터 (닉네임, 성별, MBTI)
      * @return 수정이 반영된 전체 프로필 정보
      */
-    @PatchMapping("/profile_edit")
+    @PatchMapping("/profile-edit")
     public ResponseEntity<UserProfileResponse> updateMyInfo(
             Authentication authentication,
             @RequestBody UserProfileUpdateRequest request) {
