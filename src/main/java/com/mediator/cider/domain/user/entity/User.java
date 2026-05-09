@@ -17,8 +17,6 @@ import java.time.LocalDateTime;
 @Table(name = "users"   )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 기본 생성자 (보안을 위한 PROTECTED)
-@AllArgsConstructor
-@Builder
 public class User extends BaseTimeEntity {
 
     @Id
@@ -41,18 +39,23 @@ public class User extends BaseTimeEntity {
     @Column(length = 10)
     private String mbti; // MBTI
 
+    // 기존 데이터와의 충돌(500 에러) 방지를 위해 nullable = false 임시 해제
+    @Column(unique = true, length = 8)
+    private String friendCode; // 친구 추가용 고유 코드
+
     private LocalDateTime deletedAt; // 회원 탈퇴 일시
 
     /**
      * 회원 생성을 위한 빌더 패턴 적용
      */
     @Builder
-    public User(String email, String password, String nickname, String gender, String mbti) {
+    public User(String email, String password, String nickname, String gender, String mbti, String friendCode) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.gender = gender;
         this.mbti = mbti;
+        this.friendCode = friendCode;
     }
 
     // 부분 수정을 고려하여 값이 들어왔을 때만 변경되도록 처리

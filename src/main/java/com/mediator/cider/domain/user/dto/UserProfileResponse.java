@@ -14,6 +14,7 @@ public class UserProfileResponse {
     private String nickname;
     private String gender;
     private String mbti;
+    private String friendCode; // 추가: 내 친구 코드
     private AttachmentType attachmentType; // 애착유형 (설문 전이면 null)
     private String attachmentTypeDescription; // 애착유형 설명 ("불안형" 등)
     private LocalDateTime joinDate; // 가입일
@@ -24,6 +25,7 @@ public class UserProfileResponse {
                 .nickname(user.getNickname())
                 .gender(user.getGender())
                 .mbti(user.getMbti())
+                .friendCode(user.getFriendCode())
                 .attachmentType(attachmentType)
                 .attachmentTypeDescription(attachmentType != null ? attachmentType.getDescription() : "검사 전")
                 .joinDate(user.getCreatedAt())

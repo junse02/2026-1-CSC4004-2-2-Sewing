@@ -14,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 /**
  * 회원 관련 비즈니스 로직을 처리하는 서비스
  * 작성자: 성준서
@@ -41,8 +43,19 @@ public class UserService {
         // 2. 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-        // 3. DTO -> Entity 변환 및 저장
-        User user = request.toEntity(encodedPassword);
+        // 3. 고유 친구 코드 8자리 생성 (중복 체크 생략: 확률적으로 매우 낮음)
+        String friendCode = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+
+        // 4. DTO -> Entity 변환 및 저장
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(encodedPassword)
+                .nickname(request.getNickname())
+                .gender(request.getGender())
+                .mbti(request.getMbti())
+                .friendCode(friendCode)
+                .build();
+                
         User savedUser = userRepository.save(user);
 
         return savedUser.getId();

@@ -24,4 +24,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return 존재 여부 (true/false)
      */
     boolean existsByEmailAndDeletedAtIsNull(String email);
+
+    /**
+     * 친구 코드로 활성 상태인 회원을 조회
+     * @param friendCode 친구 코드
+     * @return Optional User
+     */
+    Optional<User> findByFriendCodeAndDeletedAtIsNull(String friendCode);
 }
