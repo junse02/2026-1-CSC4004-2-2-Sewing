@@ -20,7 +20,7 @@ public class FriendController {
     /**
      * 친구 코드로 친구 추가
      */
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<String> addFriend(
             Authentication authentication,
             @RequestBody FriendAddRequest request) {
@@ -33,7 +33,7 @@ public class FriendController {
     /**
      * 내 친구 목록 조회
      */
-    @GetMapping
+    @GetMapping("/list")
     public ResponseEntity<List<FriendResponse>> getMyFriends(Authentication authentication) {
         String email = authentication.getName();
         List<FriendResponse> friends = friendService.getMyFriends(email);
