@@ -29,14 +29,26 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // API 서버이므로 CSRF 비활성화
+                .cors(cors -> cors.configure(http)) // CORS 기본 설정 추가
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 X (JWT 방식)
                 .authorizeHttpRequests(auth -> auth
-                        // 로그인, 회원가입, Swagger는 로그인 토큰 없이도 가능핟로ㅗㄱ
-                        .requestMatchers("/api/users/login", "/api/users/signup", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // 로그인, 회원가입, Swagger 관련 모든 경로 허용
+                        .requestMatchers(
+                                "/api/users/login", 
+                                "/api/users/signup", 
+                                "/swagger-ui.html", 
+                                "/swagger-ui/**", 
+                                "/v3/api-docs", 
+                                "/v3/api-docs/**", 
+                                "/swagger-resources/**", 
+                                "/webjars/**",
+                                "/error" // Spring Boot 기본 에러 페이지 접근 허용
+                        ).permitAll()
                         // 그 외 모든 요청은 로그인이 되어야 가능
                         .anyRequest().authenticated()
                 )
