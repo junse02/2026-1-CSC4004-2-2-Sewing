@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "friend-controller", description = "친구 추가 및 목록 조회 API")
+@Tag(name = "friend-controller", description = "친구 추가, 목록 조회 및 삭제 API")
 @RestController
 @RequestMapping("/api/friends")
 @RequiredArgsConstructor
@@ -40,5 +40,18 @@ public class FriendController {
         String email = authentication.getName();
         List<FriendResponse> friends = friendService.getMyFriends(email);
         return ResponseEntity.ok(friends);
+    }
+
+    /**
+     * 친구 삭제 (쌍방향 삭제)
+     */
+    @DeleteMapping("/{friendId}")
+    public ResponseEntity<String> deleteFriend(
+            Authentication authentication,
+            @PathVariable Long friendId) {
+            
+        String email = authentication.getName();
+        String result = friendService.deleteFriend(email, friendId);
+        return ResponseEntity.ok(result);
     }
 }

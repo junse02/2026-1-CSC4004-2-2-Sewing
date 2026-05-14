@@ -79,4 +79,24 @@ public class FriendService {
             return FriendResponse.from(friend, typeDesc);
         }).collect(Collectors.toList());
     }
+
+    /**
+     * 친구 삭제 (쌍방향 삭제)
+     */
+    @Transactional
+    public String deleteFriend(String myEmail, Long friendId) {
+        User me = userRepository.findByEmailAndDeletedAtIsNull(myEmail)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        User friend = userRepository.findById(friendId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 친구 ID입니다."));
+
+        // 친구 관계가 맞는지 확인
+        if (!friendshipRepository.existsByFromUserAndToUser(me, friend)) {
+            throw new IllegalStateException("친구 관계가 아닙니다.");
+        }
+
+        friendshipRepository.deleteByUsers(me, friend);
+        return friend.getNickname() + "님을 친구 목록에서 삭제했습니다.";
+    }
 }
