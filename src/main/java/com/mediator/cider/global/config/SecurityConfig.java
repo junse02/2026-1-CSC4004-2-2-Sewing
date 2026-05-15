@@ -1,11 +1,16 @@
 package com.mediator.cider.global.config;
 
+import com.mediator.cider.global.JwtProvider;
+import com.mediator.cider.global.auth.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * Spring Security 설정 클래스
@@ -14,28 +19,42 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtProvider jwtProvider;
 
     // 비밀번호 암호화 도구 등록
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // 테스트 편의를 위해 CSRF 비활성화
+                .csrf(csrf -> csrf.disable()) // API 서버이므로 CSRF 비활성화
+                .cors(cors -> cors.configure(http)) // CORS 기본 설정 추가
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 X (JWT 방식)
                 .authorizeHttpRequests(auth -> auth
+                        // 로그인, 회원가입, Swagger 관련 모든 경로 허용
                         .requestMatchers(
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/api/users/join", // 회원가입 API도 누구나 접근 가능하게 허용
-                                "/api/users/login" // 로그인 API 허용 추가
-                        ).permitAll() // 위 경로는 로그인 없이 허용
-                        .anyRequest().authenticated() // 그 외 나머지는 로그인 필요
-                );
+                                "/api/users/login", 
+                                "/api/users/signup", 
+                                "/swagger-ui.html", 
+                                "/swagger-ui/**", 
+                                "/v3/api-docs", 
+                                "/v3/api-docs/**", 
+                                "/swagger-resources/**", 
+                                "/webjars/**",
+                                "/error" // Spring Boot 기본 에러 페이지 접근 허용
+                        ).permitAll()
+                        // 그 외 모든 요청은 로그인이 되어야 가능
+                        .anyRequest().authenticated()
+                )
+                // 🚩 핵심: UsernamePasswordAuthenticationFilter(기본 로그인 필터) 실행 전에
+                // 우리가 만든 JWT 필터를 먼저 실행해라!
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

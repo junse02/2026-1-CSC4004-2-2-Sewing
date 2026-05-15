@@ -20,6 +20,8 @@ public class UserJoinRequest {
     private String email;    // 사용자 식별용 이메일
     private String password; // 비밀번호 (암호화 예정)
     private String nickname; // 사용자 이름
+    private String gender;   // 성별
+    private String mbti;     // MBTI
 
     /**
      * DTO를 엔티티 객체로 변환
@@ -31,6 +33,8 @@ public class UserJoinRequest {
                 .email(this.email)
                 .password(encodedPassword)
                 .nickname(this.nickname)
+                .gender(this.gender)
+                .mbti(this.mbti)
                 .build();
     }
 }
