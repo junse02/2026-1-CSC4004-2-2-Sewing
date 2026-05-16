@@ -21,7 +21,7 @@ spring:
 
 ai:
   server:
-    url: ${AI_SERVER_URL:http://localhost:8000}       # AI 서버 URL (기본값: 로컬)
+    url: ${AI_SERVER_URL:http://banuzil-ai.duckdns.org}  # AI 서버 URL
 
 jwt:
   secret: ${JWT_SECRET}                              # 환경변수 처리
