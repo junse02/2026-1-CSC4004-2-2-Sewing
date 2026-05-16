@@ -38,6 +38,20 @@ public class MediationSession extends BaseTimeEntity {
     @Column(nullable = false)
     private int currentRound; // 현재 진행 중인 라운드 번호
 
+    // === AI 서버가 관리하는 EFT 상태 (읽기 전용) ===
+
+    @Column(columnDefinition = "smallint default 1")
+    @Builder.Default
+    private Integer eftStage = 1;
+
+    @Column(columnDefinition = "int default 0")
+    @Builder.Default
+    private Integer stageProgress = 0;
+
+    @Column(columnDefinition = "text default ''")
+    @Builder.Default
+    private String cycleDefinition = "";
+
     // 참여자가 방에 들어왔을 때 상태 업데이트
     public void joinParticipant(User participant) {
         if (this.participant != null) {

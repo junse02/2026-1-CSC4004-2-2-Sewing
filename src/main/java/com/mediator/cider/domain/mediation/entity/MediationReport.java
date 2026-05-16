@@ -6,44 +6,40 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * 각 라운드별 사용자의 입력 기록을 저장하는 엔티티
+ * 최종 보고서 엔티티 (4개 섹션 분리 저장)
+ * 한 세션당 2개 row (여성 보고서 + 남성 보고서)
+ * 작성자: 황병부
  */
 @Entity
-@Table(name = "mediation_records")
+@Table(name = "mediation_reports")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class MediationRecord extends BaseTimeEntity {
+public class MediationReport extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "record_id")
+    @Column(name = "report_id")
     private Long id;
 
-    // 어느 중재 방의 기록인지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", nullable = false)
     private MediationSession session;
 
-    // 누가 작성했는지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // 몇 라운드의 기록인지
-    @Column(nullable = false)
-    private int roundNumber;
-
-    // 작성한 내용
     @Column(columnDefinition = "TEXT", nullable = false)
-    private String content;
+    private String emotionSummary;
 
-    // AI 상담사 응답 (AI 서버가 UPDATE)
-    @Column(columnDefinition = "TEXT")
-    private String aiResponse;
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String partnerUnderstanding;
 
-    public void updateAiResponse(String aiResponse) {
-        this.aiResponse = aiResponse;
-    }
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String mediationPlans;
+
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String recommendedDialogues;
 }
