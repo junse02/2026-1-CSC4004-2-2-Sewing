@@ -111,11 +111,11 @@ class UserServiceTest {
 
         // 2. When: 방금 가입한 정보와 동일한 정보로 로그인 시도
         UserLoginRequest loginRequest = new UserLoginRequest(email, password);
-        Long loginId = userService.login(loginRequest); // 로그인
+        String token = userService.login(loginRequest); // 로그인 → JWT 토큰 반환
 
-        // 3. Then: 가입한 ID와 로그인 후 반환된 ID가 일치하는지 검증
-        assertThat(loginId).isEqualTo(joinedId);
-        assertThat(loginId).isNotNull();
+        // 3. Then: 토큰이 정상적으로 발급되었는지 검증
+        assertThat(token).isNotNull();
+        assertThat(token).isNotEmpty();
     }
 
     @Test
