@@ -14,6 +14,8 @@ import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.domain.user.repository.FriendshipRepository;
 import com.mediator.cider.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +34,11 @@ public class MediationService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
     private final AiServerClient aiServerClient;
-    private final MediationService self; // 자기 자신을 주입받아 새로운 트랜잭션 호출용으로 사용
+    
+    // 순환 참조(Circular Dependency) 방지를 위해 @Lazy와 @Autowired 사용
+    @Autowired
+    @Lazy
+    private MediationService self; 
 
     /**
      * 중재 방 생성
