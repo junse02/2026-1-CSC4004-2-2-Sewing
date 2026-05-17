@@ -4,6 +4,8 @@ import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * 갈등 중재 방 엔티티
@@ -42,6 +44,7 @@ public class MediationSession extends BaseTimeEntity {
     @Builder.Default
     private Integer eftStage = 1; // smallint DEFAULT 1
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     @Builder.Default
     private String stageRounds = "{\"1\":0,\"2\":0,\"3\":0}"; // jsonb DEFAULT '{"1":0,"2":0,"3":0}'
@@ -49,6 +52,7 @@ public class MediationSession extends BaseTimeEntity {
     @Builder.Default
     private Integer stageProgress = 0; // int DEFAULT 0
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private String detectedSignals; // jsonb
 
