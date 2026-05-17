@@ -2,6 +2,11 @@ package com.mediator.cider.domain.mediation.controller;
 
 import com.mediator.cider.domain.mediation.dto.MediationRecordRequest;
 import com.mediator.cider.domain.mediation.dto.MediationSessionResponse;
+import com.mediator.cider.domain.mediation.dto.ai.AiRoundAnalyzeResponse;
+import com.mediator.cider.domain.mediation.dto.ai.CycleDefinitionResponse;
+import com.mediator.cider.domain.mediation.dto.ai.CycleExploreResponse;
+import com.mediator.cider.domain.mediation.dto.ai.CycleRequest;
+import com.mediator.cider.domain.mediation.entity.MediationReport;
 import com.mediator.cider.domain.mediation.service.MediationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +24,6 @@ public class MediationController {
 
     private final MediationService mediationService;
 
-    /**
-     * 갈등 중재 방 생성
-     */
     @PostMapping
     public ResponseEntity<String> createSession(Authentication authentication) {
         String email = authentication.getName();
@@ -29,9 +31,6 @@ public class MediationController {
         return ResponseEntity.ok("방이 생성되었습니다. 방 번호: " + sessionId);
     }
 
-    /**
-     * 갈등 중재 방 입장
-     */
     @PostMapping("/{sessionId}/join")
     public ResponseEntity<String> joinSession(
             Authentication authentication,
@@ -42,28 +41,46 @@ public class MediationController {
         return ResponseEntity.ok(message);
     }
 
-    /**
-     * 라운드별 상황/입장 제출
-     */
     @PostMapping("/{sessionId}/{round}")
-    public ResponseEntity<String> submitRecord(
+    public ResponseEntity<?> submitRecord(
             Authentication authentication,
             @PathVariable Long sessionId,
             @PathVariable int round,
             @RequestBody MediationRecordRequest request) {
             
         String email = authentication.getName();
-        String resultMessage = mediationService.submitRecord(email, sessionId, round, request);
-        return ResponseEntity.ok(resultMessage);
+        AiRoundAnalyzeResponse aiResponse = mediationService.submitRecord(email, sessionId, round, request);
+        
+        if (aiResponse != null) {
+            return ResponseEntity.ok(aiResponse);
+        } else {
+            return ResponseEntity.ok(round + "라운드 제출이 완료되었습니다. 상대방의 제출을 기다리는 중입니다.");
+        }
     }
 
-    /**
-     * 내 갈등 중재 방 목록 조회 (대기 중, 진행 중, 완료 모두 포함)
-     */
     @GetMapping("/session-list")
     public ResponseEntity<List<MediationSessionResponse>> getMyRooms(Authentication authentication) {
         String email = authentication.getName();
         List<MediationSessionResponse> rooms = mediationService.getMySessions(email);
         return ResponseEntity.ok(rooms);
+    }
+
+    // --- 프론트엔드 연동용 새 API ---
+
+    @PostMapping("/{sessionId}/cycle/explore")
+    public ResponseEntity<CycleExploreResponse> exploreCycle(@PathVariable Long sessionId) {
+        return ResponseEntity.ok(mediationService.exploreCycle(sessionId));
+    }
+
+    @PostMapping("/{sessionId}/cycle/define")
+    public ResponseEntity<CycleDefinitionResponse> defineCycle(
+            @PathVariable Long sessionId,
+            @RequestBody CycleRequest request) {
+        return ResponseEntity.ok(mediationService.defineCycle(sessionId, request));
+    }
+
+    @GetMapping("/{sessionId}/report")
+    public ResponseEntity<List<MediationReport>> getReport(@PathVariable Long sessionId) {
+        return ResponseEntity.ok(mediationService.getReports(sessionId));
     }
 }

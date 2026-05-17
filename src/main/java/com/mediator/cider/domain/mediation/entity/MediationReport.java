@@ -6,40 +6,37 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * 각 라운드별 사용자의 입력 기록을 저장하는 엔티티
+ * 최종 요약 보고서 엔티티
  */
 @Entity
-@Table(name = "mediation_records")
+@Table(name = "mediation_reports")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class MediationRecord extends BaseTimeEntity {
+public class MediationReport extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "record_id")
-    private Long id;
+    private Long reportId;
 
-    // 어느 중재 방의 기록인지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", nullable = false)
     private MediationSession session;
 
-    // 누가 작성했는지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // 몇 라운드의 기록인지
-    @Column(nullable = false)
-    private int roundNumber;
+    @Column(columnDefinition = "text", nullable = false)
+    private String emotionSummary;
 
-    // 작성한 내용
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String content;
+    @Column(columnDefinition = "text", nullable = false)
+    private String partnerUnderstanding;
 
-    // AI 서버 응답 추가
-    @Column(columnDefinition = "TEXT")
-    private String aiResponse;
+    @Column(columnDefinition = "text", nullable = false)
+    private String mediationPlans;
+
+    @Column(columnDefinition = "text", nullable = false)
+    private String recommendedDialogues;
 }
