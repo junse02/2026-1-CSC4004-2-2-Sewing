@@ -15,6 +15,7 @@ import com.mediator.cider.domain.user.repository.FriendshipRepository;
 import com.mediator.cider.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class MediationService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
     private final AiServerClient aiServerClient;
+    private final MediationService self; // 자기 자신을 주입받아 새로운 트랜잭션 호출용으로 사용
 
     /**
      * 중재 방 생성
@@ -76,10 +78,25 @@ public class MediationService {
     }
 
     /**
-     * 라운드별 내용 제출
+     * 라운드별 내용 제출 및 트랜잭션 분리
      */
-    @Transactional
     public AiRoundAnalyzeResponse submitRecord(String email, Long sessionId, int round, MediationRecordRequest request) {
+        // 1. 발화를 DB에 완벽히 확정(Commit) 짓는 트랜잭션 호출
+        boolean isBothSubmitted = self.saveRecordAndCheckBothSubmitted(email, sessionId, round, request);
+        
+        // 2. 2명이 모두 제출했다면, 확정된 DB를 바탕으로 AI 서버 호출 (트랜잭션 밖에서 실행!)
+        if (isBothSubmitted) {
+            return self.processAiAnalysis(sessionId, round);
+        }
+        
+        return null; // 대기 중
+    }
+
+    /**
+     * 발화를 저장하고, 두 명 다 제출했는지 반환하는 독립 트랜잭션 메서드
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean saveRecordAndCheckBothSubmitted(String email, Long sessionId, int round, MediationRecordRequest request) {
         User user = userRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
@@ -111,41 +128,48 @@ public class MediationService {
         recordRepository.save(record);
 
         List<MediationRecord> roundRecords = recordRepository.findBySessionIdAndRoundNumber(sessionId, round);
-        
-        // 2명 모두 제출한 경우
-        if (roundRecords.size() == 2) {
-            String fReply = "";
-            String mReply = "";
-            
-            for (MediationRecord r : roundRecords) {
-                if ("female".equalsIgnoreCase(r.getUser().getGender()) || "여성".equals(r.getUser().getGender()) || "여".equals(r.getUser().getGender())) {
-                    fReply = r.getContent();
-                } else if ("male".equalsIgnoreCase(r.getUser().getGender()) || "남성".equals(r.getUser().getGender()) || "남".equals(r.getUser().getGender())) {
-                    mReply = r.getContent();
-                } else {
-                    if (fReply.isEmpty()) fReply = r.getContent();
-                    else mReply = r.getContent();
-                }
-            }
+        return roundRecords.size() == 2;
+    }
 
-            // AI 서버 호출
-            AiRoundAnalyzeResponse aiResponse = aiServerClient.roundAnalyze(sessionId, fReply, mReply);
-
-            // 종료 조건 체크 (명세서 기준)
-            if (session.getEftStage() != null && session.getEftStage() == 3 
-                && session.getStageProgress() != null && session.getStageProgress() >= 90) {
+    /**
+     * AI 통신 및 라운드 진행 처리를 위한 독립 트랜잭션 메서드
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public AiRoundAnalyzeResponse processAiAnalysis(Long sessionId, int round) {
+        MediationSession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
                 
-                // 보고서 생성 호출
-                aiServerClient.generateReport(sessionId);
-                session.completeMediation();
+        List<MediationRecord> roundRecords = recordRepository.findBySessionIdAndRoundNumber(sessionId, round);
+        
+        String fReply = "";
+        String mReply = "";
+        
+        for (MediationRecord r : roundRecords) {
+            if ("female".equalsIgnoreCase(r.getUser().getGender()) || "여성".equals(r.getUser().getGender()) || "여".equals(r.getUser().getGender())) {
+                fReply = r.getContent();
+            } else if ("male".equalsIgnoreCase(r.getUser().getGender()) || "남성".equals(r.getUser().getGender()) || "남".equals(r.getUser().getGender())) {
+                mReply = r.getContent();
             } else {
-                session.advanceRound();
+                if (fReply.isEmpty()) fReply = r.getContent();
+                else mReply = r.getContent();
             }
-
-            return aiResponse;
         }
 
-        return null; // 대기 중
+        // AI 서버 호출 (이 시점에는 이전 트랜잭션이 종료되어 DB에 모두 기록된 상태)
+        AiRoundAnalyzeResponse aiResponse = aiServerClient.roundAnalyze(sessionId, fReply, mReply);
+
+        // 종료 조건 체크
+        if (session.getEftStage() != null && session.getEftStage() == 3 
+            && session.getStageProgress() != null && session.getStageProgress() >= 90) {
+            
+            // 보고서 생성 호출
+            aiServerClient.generateReport(sessionId);
+            session.completeMediation();
+        } else {
+            session.advanceRound();
+        }
+
+        return aiResponse;
     }
 
     /**
