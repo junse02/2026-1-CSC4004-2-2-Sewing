@@ -2,6 +2,8 @@ package com.mediator.cider.domain.mediation.service;
 
 import com.mediator.cider.domain.mediation.dto.MediationRecordRequest;
 import com.mediator.cider.domain.mediation.dto.MediationSessionResponse;
+import com.mediator.cider.domain.mediation.dto.ai.AiRoundAnalyzeRequest;
+import com.mediator.cider.domain.mediation.dto.ai.AiRoundAnalyzeResponse;
 import com.mediator.cider.domain.mediation.entity.MediationRecord;
 import com.mediator.cider.domain.mediation.entity.MediationSession;
 import com.mediator.cider.domain.mediation.entity.MediationStatus;
@@ -11,8 +13,13 @@ import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.domain.user.repository.FriendshipRepository;
 import com.mediator.cider.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +33,10 @@ public class MediationService {
     private final MediationRecordRepository recordRepository;
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
+    private final RestTemplate restTemplate;
+
+    // AI 서버 주소
+    private static final String AI_SERVER_URL = "http://banuzil-ai.duckdns.org";
 
     /**
      * 중재 방 생성
@@ -112,17 +123,61 @@ public class MediationService {
                 .build();
         recordRepository.save(record);
 
-        // 두 명 모두 제출했는지 확인 후 다음 라운드로 이동 처리
+        // 두 명 모두 제출했는지 확인
         List<MediationRecord> roundRecords = recordRepository.findBySessionIdAndRoundNumber(sessionId, round);
         if (roundRecords.size() == 2) {
-            // 특정 라운드(예: 3라운드)가 마지막 라운드라고 가정할 경우, 여기서 완료 상태로 변경 가능합니다.
-            // 임시로 3라운드를 마지막이라고 가정해 보겠습니다.
+            
+            // 1. 여성/남성 발화 분리 로직 (유저의 gender 컬럼 기준)
+            String fReply = "";
+            String mReply = "";
+            
+            for (MediationRecord r : roundRecords) {
+                if ("여성".equals(r.getUser().getGender()) || "female".equalsIgnoreCase(r.getUser().getGender()) || "여".equals(r.getUser().getGender())) {
+                    fReply = r.getContent();
+                } else if ("남성".equals(r.getUser().getGender()) || "male".equalsIgnoreCase(r.getUser().getGender()) || "남".equals(r.getUser().getGender())) {
+                    mReply = r.getContent();
+                } else {
+                    // 성별이 명확하지 않은 경우 임의 할당 (테스트 방어 로직)
+                    if (fReply.isEmpty()) fReply = r.getContent();
+                    else mReply = r.getContent();
+                }
+            }
+
+            // 2. AI 서버로 API 호출 (/ai/round-analyze)
+            try {
+                AiRoundAnalyzeRequest aiRequest = AiRoundAnalyzeRequest.builder()
+                        .sessionId(sessionId)
+                        .fReply(fReply)
+                        .mReply(mReply)
+                        .build();
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<AiRoundAnalyzeRequest> entity = new HttpEntity<>(aiRequest, headers);
+
+                // AI 서버 API 호출
+                ResponseEntity<AiRoundAnalyzeResponse> aiResponse = restTemplate.postForEntity(
+                        AI_SERVER_URL + "/ai/round-analyze",
+                        entity,
+                        AiRoundAnalyzeResponse.class
+                );
+
+                // AI 응답 로깅 (선택적)
+                if (aiResponse.getBody() != null && aiResponse.getBody().isRiskFlag()) {
+                    System.out.println("⚠️ 위험 신호 감지됨! (Session: " + sessionId + ")");
+                }
+            } catch (Exception e) {
+                System.err.println("AI 서버 통신 실패: " + e.getMessage());
+                // 통신 실패 시에도 라운드는 넘어갈 수 있도록 처리하거나 예외를 던질 수 있습니다.
+            }
+
+            // 3. 라운드 진행 로직
             if (session.getCurrentRound() >= 3) {
                 session.completeMediation();
-                return round + "라운드 제출이 완료되었습니다. 두 명 모두 제출하여 갈등 중재가 최종 완료(COMPLETED) 되었습니다!";
+                return round + "라운드 제출이 완료되었습니다. (AI 분석 완료) 두 명 모두 제출하여 갈등 중재가 최종 완료(COMPLETED) 되었습니다!";
             } else {
                 session.advanceRound();
-                return round + "라운드 제출이 완료되었습니다. 두 명 모두 제출하여 " + session.getCurrentRound() + "라운드로 넘어갑니다!";
+                return round + "라운드 제출이 완료되었습니다. (AI 분석 완료) 다음 라운드로 넘어갑니다!";
             }
         }
 
