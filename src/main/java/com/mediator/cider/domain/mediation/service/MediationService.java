@@ -147,13 +147,18 @@ public class MediationService {
 
         entityManager.refresh(session);
 
-        if (session.getCurrentRound() >= 3) {
+        // 원본 로직으로 복구: AI 서버가 판단한 stage와 progress를 엄격하게 따짐
+        if (session.getEftStage() != null && session.getEftStage() == 3 
+            && session.getStageProgress() != null && session.getStageProgress() >= 90) {
+            
+            // 보고서 생성 호출
             try {
                 aiServerClient.generateReport(sessionId);
             } catch (Exception e) {
                 System.err.println("보고서 생성 호출 중 에러 발생: " + e.getMessage());
             }
             session.completeMediation();
+            
         } else {
             session.advanceRound();
         }
