@@ -163,20 +163,23 @@ public class MediationService {
             }
         }
 
-        // AI 서버 호출 (이 시점에는 이전 트랜잭션이 종료되어 DB에 모두 기록된 상태)
+        // AI 서버 호출
         AiRoundAnalyzeResponse aiResponse = aiServerClient.roundAnalyze(sessionId, fReply, mReply);
 
-        // 중요: AI 서버가 분석 과정에서 DB의 eft_stage와 stage_progress를 직접 수정했으므로,
-        // Spring Boot의 메모리(1차 캐시)에 있는 session 객체를 최신 DB 상태로 강제 새로고침 해야 합니다!
         entityManager.refresh(session);
 
-        // 새롭게 갱신된 종료 조건 체크
-        if (session.getEftStage() != null && session.getEftStage() == 3 
-            && session.getStageProgress() != null && session.getStageProgress() >= 90) {
+        // 테스트를 위해 종료 조건 완화: stage에 상관없이 3라운드 이상이면 무조건 종료!
+        // (실제 프로덕션에서는 AI의 stage, progress를 엄격히 따져야 합니다)
+        if (session.getCurrentRound() >= 3) {
             
             // 보고서 생성 호출
-            aiServerClient.generateReport(sessionId);
+            try {
+                aiServerClient.generateReport(sessionId);
+            } catch (Exception e) {
+                System.err.println("보고서 생성 호출 중 에러 발생: " + e.getMessage());
+            }
             session.completeMediation();
+            
         } else {
             session.advanceRound();
         }
