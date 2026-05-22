@@ -1,6 +1,7 @@
 spring:
   datasource:
-    url: jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres
+    # Supabase PgBouncer(포트 6543) 환경에서 PreparedStatement 충돌 에러(S_2 already exists)를 방지하기 위해 prepareThreshold=0 옵션 추가
+    url: jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres?prepareThreshold=0
     username: postgres.btuopynrwnqkktxsqjys          # 기본 계정명
     password: ${DB_PASSWORD}                         # 환경변수 처리
     driver-class-name: org.postgresql.Driver
