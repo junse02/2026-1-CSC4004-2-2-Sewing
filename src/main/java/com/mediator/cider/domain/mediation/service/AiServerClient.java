@@ -2,10 +2,9 @@ package com.mediator.cider.domain.mediation.service;
 
 import com.mediator.cider.domain.mediation.dto.ai.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
 
@@ -15,12 +14,12 @@ public class AiServerClient {
 
     public AiServerClient(@Value("${ai.server.url:http://banuzil-ai.duckdns.org}") String aiServerUrl) {
         // AI 응답이 느릴 수 있으므로 타임아웃을 30초로 넉넉하게 설정
-        HttpClient httpClient = HttpClient.create()
-                .responseTimeout(Duration.ofSeconds(30));
+        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
+        requestFactory.setReadTimeout(Duration.ofSeconds(30));
 
         this.restClient = RestClient.builder()
                 .baseUrl(aiServerUrl)
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .requestFactory(requestFactory)
                 .build();
     }
 

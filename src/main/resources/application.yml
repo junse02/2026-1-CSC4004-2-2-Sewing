@@ -1,3 +1,6 @@
+server:
+  forward-headers-strategy: native
+
 spring:
   datasource:
     # Supabase PgBouncer(포트 6543) 환경에서 PreparedStatement 충돌 에러(S_2 already exists)를 방지하기 위해 prepareThreshold=0 옵션 추가
