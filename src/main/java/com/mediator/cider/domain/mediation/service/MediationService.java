@@ -145,9 +145,9 @@ public class MediationService {
 
         AiRoundAnalyzeResponse aiResponse = aiServerClient.roundAnalyze(sessionId, fReply, mReply);
 
+        // AI 서버가 라운드, 단계 등을 모두 알아서 변경했으므로, 바뀐 정보를 DB에서 새로 읽어옴
         entityManager.refresh(session);
 
-        // 원본 로직으로 복구: AI 서버가 판단한 stage와 progress를 엄격하게 따짐
         if (session.getEftStage() != null && session.getEftStage() == 3 
             && session.getStageProgress() != null && session.getStageProgress() >= 90) {
             
@@ -159,9 +159,8 @@ public class MediationService {
             }
             session.completeMediation();
             
-        } else {
-            session.advanceRound();
-        }
+        } 
+        // 기존에 있던 session.advanceRound() 삭제! 이제 라운드 증가는 AI 서버가 전적으로 책임짐.
 
         return aiResponse;
     }
