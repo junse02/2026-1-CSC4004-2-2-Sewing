@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class FriendService {
 
     private final UserRepository userRepository;
@@ -63,6 +62,7 @@ public class FriendService {
     /**
      * 내 친구 목록 조회
      */
+    @Transactional(readOnly = true)
     public List<FriendResponse> getMyFriends(String myEmail) {
         User me = userRepository.findByEmailAndDeletedAtIsNull(myEmail)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
