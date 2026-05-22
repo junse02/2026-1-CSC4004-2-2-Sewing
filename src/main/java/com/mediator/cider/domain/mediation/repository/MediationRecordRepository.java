@@ -11,4 +11,7 @@ public interface MediationRecordRepository extends JpaRepository<MediationRecord
     
     // 특정 유저가 특정 방의 특정 라운드에 작성한 기록이 있는지 확인합니다.
     boolean existsBySessionIdAndRoundNumberAndUserId(Long sessionId, int roundNumber, Long userId);
+    
+    // 특정 방의 모든 기록을 작성 시간 순으로 가져옵니다.
+    List<MediationRecord> findBySessionIdOrderByCreatedAtAsc(Long sessionId);
 }

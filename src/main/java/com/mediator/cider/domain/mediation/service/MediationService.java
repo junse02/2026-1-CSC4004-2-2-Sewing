@@ -1,6 +1,7 @@
 package com.mediator.cider.domain.mediation.service;
 
 import com.mediator.cider.domain.mediation.dto.MediationRecordRequest;
+import com.mediator.cider.domain.mediation.dto.MediationRecordResponse;
 import com.mediator.cider.domain.mediation.dto.MediationSessionResponse;
 import com.mediator.cider.domain.mediation.dto.ai.*;
 import com.mediator.cider.domain.mediation.entity.MediationRecord;
@@ -192,5 +193,13 @@ public class MediationService {
         MediationSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
         return session.getCurrentRound();
+    }
+
+    @Transactional(readOnly = true)
+    public List<MediationRecordResponse> getRecords(Long sessionId) {
+        List<MediationRecord> records = recordRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
+        return records.stream()
+                .map(MediationRecordResponse::from)
+                .collect(Collectors.toList());
     }
 }

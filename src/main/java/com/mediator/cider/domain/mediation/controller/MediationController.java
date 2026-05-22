@@ -1,6 +1,7 @@
 package com.mediator.cider.domain.mediation.controller;
 
 import com.mediator.cider.domain.mediation.dto.MediationRecordRequest;
+import com.mediator.cider.domain.mediation.dto.MediationRecordResponse;
 import com.mediator.cider.domain.mediation.dto.MediationSessionResponse;
 import com.mediator.cider.domain.mediation.dto.ai.AiRoundAnalyzeResponse;
 import com.mediator.cider.domain.mediation.dto.ai.CycleDefinitionResponse;
@@ -68,6 +69,12 @@ public class MediationController {
     @GetMapping("/{sessionId}/current-round")
     public ResponseEntity<Integer> getCurrentRound(@PathVariable Long sessionId) {
         return ResponseEntity.ok(mediationService.getCurrentRound(sessionId));
+    }
+
+    // 특정 방의 모든 대화/분석 기록 조회 API
+    @GetMapping("/{sessionId}/records")
+    public ResponseEntity<List<MediationRecordResponse>> getRecords(@PathVariable Long sessionId) {
+        return ResponseEntity.ok(mediationService.getRecords(sessionId));
     }
 
     // --- 프론트엔드 연동용 새 API ---
