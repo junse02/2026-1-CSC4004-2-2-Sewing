@@ -37,8 +37,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configure(http)) // CORS 기본 설정 추가
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 X (JWT 방식)
                 .authorizeHttpRequests(auth -> auth
-                        // 로그인, 회원가입, Swagger 관련 모든 경로 허용
+                        // 기본 홈 경로(/), 건강 상태 체크, 로그인, 회원가입, Swagger 관련 허용
                         .requestMatchers(
+                                "/",
+                                "/health",
                                 "/api/users/login", 
                                 "/api/users/signup", 
                                 "/swagger-ui.html", 
