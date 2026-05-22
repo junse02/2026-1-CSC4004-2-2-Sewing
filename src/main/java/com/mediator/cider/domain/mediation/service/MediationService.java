@@ -186,4 +186,11 @@ public class MediationService {
                 .map(MediationSessionResponse::from)
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public Integer getCurrentRound(Long sessionId) {
+        MediationSession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
+        return session.getCurrentRound();
+    }
 }

@@ -65,6 +65,11 @@ public class MediationController {
         return ResponseEntity.ok(rooms);
     }
 
+    @GetMapping("/{sessionId}/current-round")
+    public ResponseEntity<Integer> getCurrentRound(@PathVariable Long sessionId) {
+        return ResponseEntity.ok(mediationService.getCurrentRound(sessionId));
+    }
+
     // --- 프론트엔드 연동용 새 API ---
 
     @PostMapping("/{sessionId}/cycle/explore")
