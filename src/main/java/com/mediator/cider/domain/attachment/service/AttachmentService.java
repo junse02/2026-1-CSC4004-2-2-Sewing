@@ -24,18 +24,15 @@ public class AttachmentService {
 
     // ECR-R 문항 분류 (1번부터 시작)
     private static final Set<Integer> ANXIETY_ITEMS = Set.of(
-            2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36 // 불안 18문항 (짝수)
+            2, 6, 8, 10, 12, 13, 14, 15, 17, 20, 21, 22, 23, 24, 25, 26, 31, 36
     );
 
     private static final Set<Integer> AVOIDANCE_ITEMS = Set.of(
-            1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35 // 회피 18문항 (홀수)
+            1, 3, 4, 5, 7, 9, 11, 16, 18, 19, 27, 28, 29, 30, 32, 33, 34, 35
     );
 
-    // ✅ 한국판 ECR-R 기준 정확한 역채점 문항 14개
-    // 회피 역채점 (10개): 3, 15, 19, 22, 25, 27, 29, 31, 33, 35
-    // 불안 역채점 (4개): 2, 20, 26, 32
     private static final Set<Integer> REVERSE_SCORED_ITEMS = Set.of(
-            2, 3, 15, 19, 20, 22, 25, 26, 27, 29, 31, 32, 33, 35
+            3, 5, 7, 8, 9, 18, 23, 27, 28, 29, 30, 32, 33, 34
     );
 
     @Transactional
