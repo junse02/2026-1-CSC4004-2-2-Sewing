@@ -45,6 +45,7 @@ public class MediationRecord extends BaseTimeEntity {
     private String aiResponse;
 
     // 사이클 정의 필요 여부 추가
+    @Builder.Default
     @Column(nullable = false)
     @ColumnDefault("false")
     private boolean needsCycleDefinition = false;
