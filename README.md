@@ -1,5 +1,5 @@
 <a href="https://club-project-one.vercel.app/" target="_blank">
-<img width="897" height="1332" alt="Image" src="https://github.com/user-attachments/assets/ac545bd1-c0ff-487b-92a7-8ed7f987c498" />
+<img width="1000" height="600" alt="Image" src="https://github.com/user-attachments/assets/cd6cf260-4eb0-42d7-9021-4d86bc4b567f" />
 </a>
 
 <br/>
@@ -8,14 +8,14 @@
 # 0. Getting Started (시작하기)
 ```
 ```
-[서비스 링크](https://www.naver.com/)
+[바느질 서비스 링크](https://banuzil.netlify.app/)
 
 <br/>
 <br/>
 
 # 1. Project Overview (프로젝트 개요)
-- 프로젝트 이름: 사이다!
-- 프로젝트 설명: 20대 관계의 갈등 중재
+- 프로젝트 이름: 바느질
+- 프로젝트 설명: 연인 관계 중재 서비스
 
 <br/>
 <br/>
@@ -45,9 +45,7 @@
   - 친구 추가를 합니다.
 
 - **갈등 입력**:
-  - 텍스트 or 이미지 or 음성(if possible)으로 갈등 상황 입력받습니다.
-  - 상대방과의 관계를 입력합니다. ( 친구, 연인 등 )
-  - 사용 목적을 입력합니다.
+  - 텍스트로 상황을 입력받습니다.
 
 - **분석 레포트**:
   - 갈등이 해결되면 요약 레포트를 생성합니다.
