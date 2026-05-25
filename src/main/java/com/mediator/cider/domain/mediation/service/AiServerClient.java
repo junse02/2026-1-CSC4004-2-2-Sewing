@@ -13,9 +13,9 @@ public class AiServerClient {
     private final RestClient restClient;
 
     public AiServerClient(@Value("${ai.server.url:http://banuzil-ai.duckdns.org}") String aiServerUrl) {
-        // AI 응답이 느릴 수 있으므로 타임아웃을 30초로 넉넉하게 설정
+        // AI 응답이 매우 느릴 수 있으므로 타임아웃을 60초로 넉넉하게 늘림
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
-        requestFactory.setReadTimeout(Duration.ofSeconds(30));
+        requestFactory.setReadTimeout(Duration.ofSeconds(60));
 
         this.restClient = RestClient.builder()
                 .baseUrl(aiServerUrl)
