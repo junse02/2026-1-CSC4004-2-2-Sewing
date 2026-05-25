@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
+import java.util.Map;
 
 @Service
 public class AiServerClient {
@@ -36,13 +37,10 @@ public class AiServerClient {
     }
 
     public CycleExploreResponse cycleExplore(Long sessionId) {
+        // AI 서버 명세에 따라, 탐색(Explore) 모드에서는 session_id만 보내야 함
         return restClient.post()
             .uri("/ai/cycle")
-            .body(CycleRequest.builder()
-                    .sessionId(sessionId)
-                    .fExploreAnswer("")
-                    .mExploreAnswer("")
-                    .build())
+            .body(Map.of("session_id", sessionId))
             .retrieve()
             .body(CycleExploreResponse.class);
     }
