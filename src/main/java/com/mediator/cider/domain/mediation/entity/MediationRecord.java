@@ -4,6 +4,7 @@ import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 /**
  * 각 라운드별 사용자의 입력 기록을 저장하는 엔티티
@@ -44,8 +45,8 @@ public class MediationRecord extends BaseTimeEntity {
     private String aiResponse;
 
     // 사이클 정의 필요 여부 추가
-    @Builder.Default
     @Column(nullable = false)
+    @ColumnDefault("false")
     private boolean needsCycleDefinition = false;
 
     public void updateNeedsCycleDefinition(boolean needsCycleDefinition) {
