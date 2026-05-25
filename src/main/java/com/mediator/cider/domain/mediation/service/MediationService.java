@@ -145,13 +145,16 @@ public class MediationService {
 
         AiRoundAnalyzeResponse aiResponse = aiServerClient.roundAnalyze(sessionId, fReply, mReply);
 
-        // FE 요청 반영: AI 서버로부터 받은 needsCycleDefinition 값을 현재 라운드의 모든 레코드에 저장
+        // AI 서버가 ai_response를 직접 수정했을 수 있으므로, 레코드들을 다시 조회하여 최신 상태를 확보합니다.
+        // 이렇게 해야 JPA의 영속성 컨텍스트 충돌(Stale State / Optimistic Locking)을 방지할 수 있습니다.
+        List<MediationRecord> updatedRecords = recordRepository.findBySessionIdAndRoundNumber(sessionId, round);
+
+        // FE 요청 반영: AI 서버로부터 받은 needsCycleDefinition 값을 최신 레코드에 저장
         boolean needsCycle = aiResponse.isNeedsCycleDefinition();
-        for (MediationRecord r : roundRecords) {
+        for (MediationRecord r : updatedRecords) {
             r.updateNeedsCycleDefinition(needsCycle);
         }
-        // JPA 영속성 컨텍스트(Dirty Checking)에 의해 트랜잭션 종료 시 자동으로 DB에 UPDATE 쿼리가 날아갑니다.
-
+        
         entityManager.refresh(session);
 
         if (session.getEftStage() != null && session.getEftStage() == 3 
