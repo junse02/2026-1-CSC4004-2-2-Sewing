@@ -17,6 +17,8 @@ import com.mediator.cider.domain.user.repository.FriendshipRepository;
 import com.mediator.cider.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class MediationService {
+
+    private static final Logger log = LoggerFactory.getLogger(MediationService.class);
 
     private final MediationSessionRepository sessionRepository;
     private final MediationRecordRepository recordRepository;
@@ -145,7 +149,15 @@ public class MediationService {
             }
         }
 
+        log.info("[DEBUG] AI 서버 호출 직전. Session ID: {}. 이 세션은 DB에 확실히 저장되어 있습니다.", sessionId);
         AiRoundAnalyzeResponse aiResponse = aiServerClient.roundAnalyze(sessionId, fReply, mReply);
+
+        // AI 응답이 null일 경우를 대비한 방어 코드
+        if (aiResponse == null) {
+            log.error("AI 서버로부터 응답을 받았으나 내용이 비어있습니다 (null).");
+            // 비어있는 응답이라도 일단 반환하여 흐름이 끊기지 않도록 처리
+            return new AiRoundAnalyzeResponse();
+        }
 
         List<MediationRecord> updatedRecords = recordRepository.findBySessionIdAndRoundNumber(sessionId, round);
 
@@ -162,7 +174,7 @@ public class MediationService {
             try {
                 aiServerClient.generateReport(sessionId);
             } catch (Exception e) {
-                System.err.println("보고서 생성 호출 중 에러 발생: " + e.getMessage());
+                log.error("보고서 생성 호출 중 에러 발생", e);
             }
             session.completeMediation();
         } 
@@ -177,10 +189,8 @@ public class MediationService {
 
     @Transactional
     public CycleDefinitionResponse defineCycle(Long sessionId, CycleRequest request) {
-        // 1. AI 서버에 사이클 정의 요청
         CycleDefinitionResponse response = aiServerClient.cycleDefine(sessionId, request.getFExploreAnswer(), request.getMExploreAnswer());
 
-        // 2. 세션 정보 가져오기
         MediationSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
 
@@ -195,17 +205,14 @@ public class MediationService {
             maleUser = session.getInitiator();
         }
 
-        // 명세서에 따라 round_number는 직전 완료 라운드 (현재 라운드 - 1) 사용
         int prevRoundNumber = session.getCurrentRound() > 1 ? session.getCurrentRound() - 1 : 1;
 
-        // 3. 브릿지 메시지가 비어있지 않다면 DB에 INSERT
-        // DB 스키마 제약조건(nullable=false)을 피하기 위해 content에 빈 문자열("") 삽입
         if (StringUtils.hasText(response.getFMessage())) {
             MediationRecord bridgeRecord = MediationRecord.builder()
                     .session(session)
                     .user(femaleUser)
                     .roundNumber(prevRoundNumber) 
-                    .content("") // 유저 발화 없음 (빈 문자열)
+                    .content("")
                     .aiResponse(response.getFMessage())
                     .build();
             recordRepository.save(bridgeRecord);
@@ -215,7 +222,7 @@ public class MediationService {
                     .session(session)
                     .user(maleUser)
                     .roundNumber(prevRoundNumber) 
-                    .content("") // 유저 발화 없음 (빈 문자열)
+                    .content("")
                     .aiResponse(response.getMMessage())
                     .build();
             recordRepository.save(bridgeRecord);
