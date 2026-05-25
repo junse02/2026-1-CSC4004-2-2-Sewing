@@ -145,7 +145,13 @@ public class MediationService {
 
         AiRoundAnalyzeResponse aiResponse = aiServerClient.roundAnalyze(sessionId, fReply, mReply);
 
-        // AI 서버가 라운드, 단계 등을 모두 알아서 변경했으므로, 바뀐 정보를 DB에서 새로 읽어옴
+        // FE 요청 반영: AI 서버로부터 받은 needsCycleDefinition 값을 현재 라운드의 모든 레코드에 저장
+        boolean needsCycle = aiResponse.isNeedsCycleDefinition();
+        for (MediationRecord r : roundRecords) {
+            r.updateNeedsCycleDefinition(needsCycle);
+        }
+        // JPA 영속성 컨텍스트(Dirty Checking)에 의해 트랜잭션 종료 시 자동으로 DB에 UPDATE 쿼리가 날아갑니다.
+
         entityManager.refresh(session);
 
         if (session.getEftStage() != null && session.getEftStage() == 3 
@@ -160,8 +166,7 @@ public class MediationService {
             session.completeMediation();
             
         } 
-        // 기존에 있던 session.advanceRound() 삭제! 이제 라운드 증가는 AI 서버가 전적으로 책임짐.
-
+        
         return aiResponse;
     }
 

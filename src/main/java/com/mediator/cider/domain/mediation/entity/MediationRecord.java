@@ -42,4 +42,13 @@ public class MediationRecord extends BaseTimeEntity {
     // AI 서버 응답 추가
     @Column(columnDefinition = "TEXT")
     private String aiResponse;
+
+    // 사이클 정의 필요 여부 추가
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean needsCycleDefinition = false;
+
+    public void updateNeedsCycleDefinition(boolean needsCycleDefinition) {
+        this.needsCycleDefinition = needsCycleDefinition;
+    }
 }

@@ -15,6 +15,7 @@ public class MediationRecordResponse {
     private int roundNumber;
     private String content;
     private String aiResponse;
+    private boolean needsCycleDefinition;
 
     public static MediationRecordResponse from(MediationRecord record) {
         return MediationRecordResponse.builder()
@@ -26,6 +27,7 @@ public class MediationRecordResponse {
                 .roundNumber(record.getRoundNumber())
                 .content(record.getContent())
                 .aiResponse(record.getAiResponse())
+                .needsCycleDefinition(record.isNeedsCycleDefinition())
                 .build();
     }
 }
