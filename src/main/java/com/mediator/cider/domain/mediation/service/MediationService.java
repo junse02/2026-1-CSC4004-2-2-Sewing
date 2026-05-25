@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -145,11 +146,8 @@ public class MediationService {
 
         AiRoundAnalyzeResponse aiResponse = aiServerClient.roundAnalyze(sessionId, fReply, mReply);
 
-        // AI 서버가 ai_response를 직접 수정했을 수 있으므로, 레코드들을 다시 조회하여 최신 상태를 확보합니다.
-        // 이렇게 해야 JPA의 영속성 컨텍스트 충돌(Stale State / Optimistic Locking)을 방지할 수 있습니다.
         List<MediationRecord> updatedRecords = recordRepository.findBySessionIdAndRoundNumber(sessionId, round);
 
-        // FE 요청 반영: AI 서버로부터 받은 needsCycleDefinition 값을 최신 레코드에 저장
         boolean needsCycle = aiResponse.isNeedsCycleDefinition();
         for (MediationRecord r : updatedRecords) {
             r.updateNeedsCycleDefinition(needsCycle);
@@ -160,14 +158,12 @@ public class MediationService {
         if (session.getEftStage() != null && session.getEftStage() == 3 
             && session.getStageProgress() != null && session.getStageProgress() >= 90) {
             
-            // 보고서 생성 호출
             try {
                 aiServerClient.generateReport(sessionId);
             } catch (Exception e) {
                 System.err.println("보고서 생성 호출 중 에러 발생: " + e.getMessage());
             }
             session.completeMediation();
-            
         } 
         
         return aiResponse;
@@ -178,9 +174,53 @@ public class MediationService {
         return aiServerClient.cycleExplore(sessionId);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CycleDefinitionResponse defineCycle(Long sessionId, CycleRequest request) {
-        return aiServerClient.cycleDefine(sessionId, request.getFExploreAnswer(), request.getMExploreAnswer());
+        // 1. AI 서버에 사이클 정의 요청
+        CycleDefinitionResponse response = aiServerClient.cycleDefine(sessionId, request.getFExploreAnswer(), request.getMExploreAnswer());
+
+        // 2. 세션 정보 가져오기
+        MediationSession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
+
+        User femaleUser = null;
+        User maleUser = null;
+
+        if ("female".equalsIgnoreCase(session.getInitiator().getGender())) {
+            femaleUser = session.getInitiator();
+            maleUser = session.getParticipant();
+        } else {
+            femaleUser = session.getParticipant();
+            maleUser = session.getInitiator();
+        }
+
+        // 명세서에 따라 round_number는 직전 완료 라운드 (현재 라운드 - 1) 사용
+        int prevRoundNumber = session.getCurrentRound() > 1 ? session.getCurrentRound() - 1 : 1;
+
+        // 3. 브릿지 메시지가 비어있지 않다면 DB에 INSERT
+        // DB 스키마 제약조건(nullable=false)을 피하기 위해 content에 빈 문자열("") 삽입
+        if (StringUtils.hasText(response.getFMessage())) {
+            MediationRecord bridgeRecord = MediationRecord.builder()
+                    .session(session)
+                    .user(femaleUser)
+                    .roundNumber(prevRoundNumber) 
+                    .content("") // 유저 발화 없음 (빈 문자열)
+                    .aiResponse(response.getFMessage())
+                    .build();
+            recordRepository.save(bridgeRecord);
+        }
+        if (StringUtils.hasText(response.getMMessage())) {
+            MediationRecord bridgeRecord = MediationRecord.builder()
+                    .session(session)
+                    .user(maleUser)
+                    .roundNumber(prevRoundNumber) 
+                    .content("") // 유저 발화 없음 (빈 문자열)
+                    .aiResponse(response.getMMessage())
+                    .build();
+            recordRepository.save(bridgeRecord);
+        }
+
+        return response;
     }
 
     @Transactional(readOnly = true)
