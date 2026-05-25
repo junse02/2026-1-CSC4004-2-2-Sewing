@@ -1,5 +1,6 @@
 package com.mediator.cider.domain.mediation.service;
 
+import com.mediator.cider.domain.mediation.dto.CycleDefinitionGetResponse;
 import com.mediator.cider.domain.mediation.dto.MediationRecordRequest;
 import com.mediator.cider.domain.mediation.dto.MediationRecordResponse;
 import com.mediator.cider.domain.mediation.dto.MediationSessionResponse;
@@ -221,6 +222,13 @@ public class MediationService {
         }
 
         return response;
+    }
+
+    @Transactional(readOnly = true)
+    public CycleDefinitionGetResponse getCycleDefinition(Long sessionId) {
+        MediationSession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
+        return new CycleDefinitionGetResponse(session.getCycleDefinition());
     }
 
     @Transactional(readOnly = true)
