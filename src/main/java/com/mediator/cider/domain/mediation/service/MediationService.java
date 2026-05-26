@@ -235,7 +235,30 @@ public class MediationService {
     public CycleDefinitionGetResponse getCycleDefinition(Long sessionId) {
         MediationSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
-        return new CycleDefinitionGetResponse(session.getCycleDefinition());
+
+        // 브릿지 메시지가 저장된 직전 라운드 레코드를 찾습니다.
+        int prevRoundNumber = session.getCurrentRound() > 1 ? session.getCurrentRound() - 1 : 1;
+        List<MediationRecord> records = recordRepository.findBySessionIdAndRoundNumber(sessionId, prevRoundNumber);
+
+        String fMessage = null;
+        String mMessage = null;
+
+        // content가 비어있는("") 레코드가 브릿지 메시지입니다.
+        for (MediationRecord r : records) {
+            if ("".equals(r.getContent())) {
+                if ("female".equalsIgnoreCase(r.getUser().getGender()) || "여성".equals(r.getUser().getGender()) || "여".equals(r.getUser().getGender())) {
+                    fMessage = r.getAiResponse();
+                } else if ("male".equalsIgnoreCase(r.getUser().getGender()) || "남성".equals(r.getUser().getGender()) || "남".equals(r.getUser().getGender())) {
+                    mMessage = r.getAiResponse();
+                }
+            }
+        }
+
+        return CycleDefinitionGetResponse.builder()
+                .cycleDefinition(session.getCycleDefinition())
+                .fMessage(fMessage)
+                .mMessage(mMessage)
+                .build();
     }
 
     @Transactional(readOnly = true)
