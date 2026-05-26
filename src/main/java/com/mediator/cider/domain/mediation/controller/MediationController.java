@@ -84,7 +84,7 @@ public class MediationController {
     }
 
     @Operation(summary = "보고서 생성 요청", description = "현재까지의 대화 내용을 바탕으로 AI에게 보고서 생성을 요청합니다. (언제든지 호출 가능)")
-    @PostMapping("/{sessionId}/report")
+    @PostMapping("/{sessionId}/generate-report")
     public ResponseEntity<String> generateReport(@PathVariable Long sessionId) {
         return ResponseEntity.ok(mediationService.generateReport(sessionId));
     }
