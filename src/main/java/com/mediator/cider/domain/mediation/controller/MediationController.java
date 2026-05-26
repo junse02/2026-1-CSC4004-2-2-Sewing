@@ -10,6 +10,7 @@ import com.mediator.cider.domain.mediation.dto.ai.CycleExploreResponse;
 import com.mediator.cider.domain.mediation.dto.ai.CycleRequest;
 import com.mediator.cider.domain.mediation.entity.MediationReport;
 import com.mediator.cider.domain.mediation.service.MediationService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -82,7 +83,18 @@ public class MediationController {
         return ResponseEntity.ok(mediationService.getCycleDefinition(sessionId));
     }
 
-    // --- 프론트엔드 연동용 새 API ---
+    @Operation(summary = "보고서 생성 요청", description = "현재까지의 대화 내용을 바탕으로 AI에게 보고서 생성을 요청합니다. (언제든지 호출 가능)")
+    @PostMapping("/{sessionId}/report")
+    public ResponseEntity<String> generateReport(@PathVariable Long sessionId) {
+        return ResponseEntity.ok(mediationService.generateReport(sessionId));
+    }
+
+    @GetMapping("/{sessionId}/report")
+    public ResponseEntity<List<MediationReport>> getReport(@PathVariable Long sessionId) {
+        return ResponseEntity.ok(mediationService.getReports(sessionId));
+    }
+
+    // --- 사이클 API ---
 
     @PostMapping("/{sessionId}/cycle/explore")
     public ResponseEntity<CycleExploreResponse> exploreCycle(@PathVariable Long sessionId) {
@@ -94,10 +106,5 @@ public class MediationController {
             @PathVariable Long sessionId,
             @RequestBody CycleRequest request) {
         return ResponseEntity.ok(mediationService.defineCycle(sessionId, request));
-    }
-
-    @GetMapping("/{sessionId}/report")
-    public ResponseEntity<List<MediationReport>> getReport(@PathVariable Long sessionId) {
-        return ResponseEntity.ok(mediationService.getReports(sessionId));
     }
 }

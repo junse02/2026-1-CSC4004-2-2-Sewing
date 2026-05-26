@@ -168,14 +168,9 @@ public class MediationService {
         
         entityManager.refresh(session);
 
+        // 보고서 생성 로직은 별도 API로 분리되었으므로, 여기서는 세션 완료 처리만 남김
         if (session.getEftStage() != null && session.getEftStage() == 3 
             && session.getStageProgress() != null && session.getStageProgress() >= 90) {
-            
-            try {
-                aiServerClient.generateReport(sessionId);
-            } catch (Exception e) {
-                log.error("보고서 생성 호출 중 에러 발생", e);
-            }
             session.completeMediation();
         } 
         
@@ -229,6 +224,13 @@ public class MediationService {
         }
 
         return response;
+    }
+
+    @Transactional
+    public String generateReport(Long sessionId) {
+        // AI 서버에 보고서 생성을 요청합니다.
+        aiServerClient.generateReport(sessionId);
+        return "ID " + sessionId + "에 대한 보고서 생성을 요청했습니다. 잠시 후 /report API를 통해 조회해주세요.";
     }
 
     @Transactional(readOnly = true)
