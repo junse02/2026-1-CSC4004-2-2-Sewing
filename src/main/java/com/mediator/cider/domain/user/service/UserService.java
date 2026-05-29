@@ -2,10 +2,10 @@ package com.mediator.cider.domain.user.service;
 
 import com.mediator.cider.domain.attachment.entity.UserAttachment;
 import com.mediator.cider.domain.attachment.repository.UserAttachmentRepository;
-import com.mediator.cider.domain.user.dto.UserJoinRequest;
-import com.mediator.cider.domain.user.dto.UserLoginRequest;
-import com.mediator.cider.domain.user.dto.UserProfileResponse;
-import com.mediator.cider.domain.user.dto.UserProfileUpdateRequest;
+import com.mediator.cider.domain.mediation.entity.MediationSession;
+import com.mediator.cider.domain.mediation.entity.MediationStatus;
+import com.mediator.cider.domain.mediation.repository.MediationSessionRepository;
+import com.mediator.cider.domain.user.dto.*;
 import com.mediator.cider.domain.user.entity.User;
 import com.mediator.cider.domain.user.repository.UserRepository;
 import com.mediator.cider.global.JwtProvider;
@@ -14,18 +14,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-/**
- * 회원 관련 비즈니스 로직을 처리하는 서비스
- * 작성자: 성준서
- */
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final UserAttachmentRepository userAttachmentRepository;
+    private final MediationSessionRepository mediationSessionRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
@@ -94,5 +95,47 @@ public class UserService {
         User user = userRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
         user.delete();
+    }
+
+    @Transactional(readOnly = true)
+    public MyPageStatsResponse getMyPageStats(String email) {
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        List<MediationSession> sessions = mediationSessionRepository.findAllByUser(user);
+
+        if (sessions.isEmpty()) {
+            return MyPageStatsResponse.builder()
+                    .totalConflictCount(0)
+                    .agreementRate(0.0)
+                    .monthlyConflictCounts(List.of())
+                    .build();
+        }
+
+        long totalConflictCount = sessions.size();
+
+        long completedCount = sessions.stream()
+                .filter(s -> s.getStatus() == MediationStatus.COMPLETED)
+                .count();
+
+        double agreementRate = (double) completedCount / totalConflictCount * 100.0;
+        agreementRate = Math.round(agreementRate * 10.0) / 10.0; // 소수점 첫째 자리까지
+
+        Map<String, Long> monthlyCountsMap = sessions.stream()
+                .collect(Collectors.groupingBy(
+                        s -> s.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM")),
+                        Collectors.counting()
+                ));
+
+        List<MonthlyConflictCount> monthlyConflictCounts = monthlyCountsMap.entrySet().stream()
+                .map(entry -> new MonthlyConflictCount(entry.getKey(), entry.getValue()))
+                .sorted((a, b) -> b.getMonth().compareTo(a.getMonth())) // 최신순 정렬
+                .collect(Collectors.toList());
+
+        return MyPageStatsResponse.builder()
+                .totalConflictCount(totalConflictCount)
+                .agreementRate(agreementRate)
+                .monthlyConflictCounts(monthlyConflictCounts)
+                .build();
     }
 }
