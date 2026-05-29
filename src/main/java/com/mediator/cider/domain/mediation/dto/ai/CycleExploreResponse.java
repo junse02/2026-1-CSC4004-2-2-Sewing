@@ -14,9 +14,7 @@ public class CycleExploreResponse {
     @JsonProperty("session_id")
     private Long sessionId;
 
-    @JsonAlias("f_question")
-    private String fQuestion;
-
-    @JsonAlias("m_question")
-    private String mQuestion;
+    // AI 서버가 "question" 이라는 공통 질문을 내려주도록 변경
+    @JsonAlias("question")
+    private String question;
 }
