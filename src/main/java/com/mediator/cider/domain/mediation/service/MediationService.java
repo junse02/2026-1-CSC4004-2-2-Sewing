@@ -152,10 +152,8 @@ public class MediationService {
         log.info("[DEBUG] AI 서버 호출 직전. Session ID: {}. 이 세션은 DB에 확실히 저장되어 있습니다.", sessionId);
         AiRoundAnalyzeResponse aiResponse = aiServerClient.roundAnalyze(sessionId, fReply, mReply);
 
-        // AI 응답이 null일 경우를 대비한 방어 코드
         if (aiResponse == null) {
             log.error("AI 서버로부터 응답을 받았으나 내용이 비어있습니다 (null).");
-            // 비어있는 응답이라도 일단 반환하여 흐름이 끊기지 않도록 처리
             return new AiRoundAnalyzeResponse();
         }
 
@@ -168,7 +166,6 @@ public class MediationService {
         
         entityManager.refresh(session);
 
-        // 보고서 생성 로직은 별도 API로 분리되었으므로, 여기서는 세션 완료 처리만 남김
         if (session.getEftStage() != null && session.getEftStage() == 3 
             && session.getStageProgress() != null && session.getStageProgress() >= 90) {
             session.completeMediation();
@@ -177,21 +174,55 @@ public class MediationService {
         return aiResponse;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CycleExploreResponse exploreCycle(Long sessionId) {
-        return aiServerClient.cycleExplore(sessionId);
+        MediationSession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
+
+        // 이미 캐싱된 질문이 있다면 AI 서버를 호출하지 않고 바로 반환
+        if (StringUtils.hasText(session.getFCycleQuestion()) && StringUtils.hasText(session.getMCycleQuestion())) {
+            return new CycleExploreResponse(sessionId, session.getFCycleQuestion(), session.getMCycleQuestion());
+        }
+
+        // 캐싱된 질문이 없다면 AI 서버 호출
+        CycleExploreResponse response = aiServerClient.cycleExplore(sessionId);
+
+        // 받은 질문을 DB에 캐싱
+        if (response != null && StringUtils.hasText(response.getFQuestion()) && StringUtils.hasText(response.getMQuestion())) {
+            session.cacheCycleQuestions(response.getFQuestion(), response.getMQuestion());
+        }
+
+        return response;
     }
 
     @Transactional
-    public CycleDefinitionResponse defineCycle(Long sessionId, CycleRequest request) {
-        CycleDefinitionResponse response = aiServerClient.cycleDefine(sessionId, request.getFExploreAnswer(), request.getMExploreAnswer());
+    public CycleDefinitionResponse defineCycle(String email, Long sessionId, CycleAnswerRequest request) {
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         MediationSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
 
+        // 유저 성별에 따라 답변을 임시 저장
+        session.setCycleAnswer(user.getGender(), request.getAnswer());
+
+        // 두 명 모두 답변을 제출했는지 확인
+        if (!session.isBothCycleAnswersSubmitted()) {
+            return null; // 아직 한 명만 제출했으면 null 반환
+        }
+
+        // 두 명 모두 제출했다면 AI 서버 호출
+        CycleDefinitionResponse response = aiServerClient.cycleDefine(sessionId, session.getFCycleAnswer(), session.getMCycleAnswer());
+
+        // 세션에 사이클 정의 저장
+        session.updateCycleDefinition(response.getCycleDefinition());
+        
+        // 임시 답변 초기화
+        session.clearCycleAnswers();
+
+        // 브릿지 메시지 저장 로직
         User femaleUser = null;
         User maleUser = null;
-
         if ("female".equalsIgnoreCase(session.getInitiator().getGender())) {
             femaleUser = session.getInitiator();
             maleUser = session.getParticipant();
@@ -199,27 +230,18 @@ public class MediationService {
             femaleUser = session.getParticipant();
             maleUser = session.getInitiator();
         }
-
         int prevRoundNumber = session.getCurrentRound() > 1 ? session.getCurrentRound() - 1 : 1;
 
         if (StringUtils.hasText(response.getFMessage())) {
             MediationRecord bridgeRecord = MediationRecord.builder()
-                    .session(session)
-                    .user(femaleUser)
-                    .roundNumber(prevRoundNumber) 
-                    .content("")
-                    .aiResponse(response.getFMessage())
-                    .build();
+                    .session(session).user(femaleUser).roundNumber(prevRoundNumber)
+                    .content("").aiResponse(response.getFMessage()).build();
             recordRepository.save(bridgeRecord);
         }
         if (StringUtils.hasText(response.getMMessage())) {
             MediationRecord bridgeRecord = MediationRecord.builder()
-                    .session(session)
-                    .user(maleUser)
-                    .roundNumber(prevRoundNumber) 
-                    .content("")
-                    .aiResponse(response.getMMessage())
-                    .build();
+                    .session(session).user(maleUser).roundNumber(prevRoundNumber)
+                    .content("").aiResponse(response.getMMessage()).build();
             recordRepository.save(bridgeRecord);
         }
 
@@ -228,7 +250,6 @@ public class MediationService {
 
     @Transactional
     public String generateReport(Long sessionId) {
-        // AI 서버에 보고서 생성을 요청합니다.
         aiServerClient.generateReport(sessionId);
         return "ID " + sessionId + "에 대한 보고서 생성을 요청했습니다. 잠시 후 /report API를 통해 조회해주세요.";
     }
@@ -238,14 +259,12 @@ public class MediationService {
         MediationSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
 
-        // 브릿지 메시지가 저장된 직전 라운드 레코드를 찾습니다.
         int prevRoundNumber = session.getCurrentRound() > 1 ? session.getCurrentRound() - 1 : 1;
         List<MediationRecord> records = recordRepository.findBySessionIdAndRoundNumber(sessionId, prevRoundNumber);
 
         String fMessage = null;
         String mMessage = null;
 
-        // content가 비어있는("") 레코드가 브릿지 메시지입니다.
         for (MediationRecord r : records) {
             if ("".equals(r.getContent())) {
                 if ("female".equalsIgnoreCase(r.getUser().getGender()) || "여성".equals(r.getUser().getGender()) || "여".equals(r.getUser().getGender())) {

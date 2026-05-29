@@ -5,9 +5,9 @@ import com.mediator.cider.domain.mediation.dto.MediationRecordRequest;
 import com.mediator.cider.domain.mediation.dto.MediationRecordResponse;
 import com.mediator.cider.domain.mediation.dto.MediationSessionResponse;
 import com.mediator.cider.domain.mediation.dto.ai.AiRoundAnalyzeResponse;
+import com.mediator.cider.domain.mediation.dto.ai.CycleAnswerRequest;
 import com.mediator.cider.domain.mediation.dto.ai.CycleDefinitionResponse;
 import com.mediator.cider.domain.mediation.dto.ai.CycleExploreResponse;
-import com.mediator.cider.domain.mediation.dto.ai.CycleRequest;
 import com.mediator.cider.domain.mediation.entity.MediationReport;
 import com.mediator.cider.domain.mediation.service.MediationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -102,9 +102,16 @@ public class MediationController {
     }
 
     @PostMapping("/{sessionId}/cycle/define")
-    public ResponseEntity<CycleDefinitionResponse> defineCycle(
+    public ResponseEntity<?> defineCycle(
+            Authentication authentication,
             @PathVariable Long sessionId,
-            @RequestBody CycleRequest request) {
-        return ResponseEntity.ok(mediationService.defineCycle(sessionId, request));
+            @RequestBody CycleAnswerRequest request) {
+        String email = authentication.getName();
+        CycleDefinitionResponse response = mediationService.defineCycle(email, sessionId, request);
+        if (response != null) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.ok("상대방의 답변을 기다리는 중입니다.");
+        }
     }
 }
