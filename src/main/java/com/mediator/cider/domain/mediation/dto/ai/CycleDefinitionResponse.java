@@ -9,15 +9,18 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CycleDefinitionResponse {
+
     @JsonProperty("session_id")
     private Long sessionId;
 
     @JsonProperty("cycle_definition")
     private String cycleDefinition;
 
-    @JsonProperty("f_message")
-    private String fMessage;
+    // AI 서버로부터 읽을 때는 "f_message" 키를 사용 (역직렬화)
+    // FE로 보낼 때는 "f_message"를 무시하고 자바 변수명을 사용하여 "FMessage"로 응답 (직렬화)
+    @JsonProperty(value = "f_message", access = JsonProperty.Access.WRITE_ONLY)
+    private String FMessage;
 
-    @JsonProperty("m_message")
-    private String mMessage;
+    @JsonProperty(value = "m_message", access = JsonProperty.Access.WRITE_ONLY)
+    private String MMessage;
 }

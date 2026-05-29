@@ -168,6 +168,12 @@ public class MediationService {
 
         if (session.getEftStage() != null && session.getEftStage() == 3 
             && session.getStageProgress() != null && session.getStageProgress() >= 90) {
+            
+            try {
+                aiServerClient.generateReport(sessionId);
+            } catch (Exception e) {
+                log.error("보고서 생성 호출 중 에러 발생", e);
+            }
             session.completeMediation();
         } 
         
@@ -217,7 +223,7 @@ public class MediationService {
         // 세션에 사이클 정의 저장
         session.updateCycleDefinition(response.getCycleDefinition());
         
-        // 임시 답변 초기화
+        // 임시 답변 초기화 (다음 사이클을 위해)
         session.clearCycleAnswers();
 
         // 브릿지 메시지 저장 로직
