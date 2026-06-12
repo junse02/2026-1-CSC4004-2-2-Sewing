@@ -32,19 +32,20 @@
 
 # 4. Key Features (주요 기능)
 
-👤 유저 관리 및 통계
+
+## 👤 유저 관리 및 통계
 ```
 •JWT 기반의 안전한 회원가입 및 로그인
 •마이페이지 통계: 내가 참여한 총 갈등 횟수, 성공적인 합의율, 월별 갈등 발생 추이 분석 제공.
 
 ```
-💬 턴제 갈등 중재 시스템 (Mediation Session)
+## 💬 턴제 갈등 중재 시스템 (Mediation Session)
 ```
 •동시성 제어: 양측(남/녀)이 모두 발화를 제출해야만 다음 단계로 넘어가는 'Wait for Both' 패턴 적용. 트랜잭션 분리를 통해 중복 제출 및 데이터 충돌 방지.
 •EFT 단계 관리: 대기중(WAITING) -> 진행중(IN_PROGRESS) -> 종료(COMPLETED)의 상태 머신 관리.
 
 ```
-🔄 AI 사이클 정의 (Cycle Explore & Define)
+## 🔄 AI 사이클 정의 (Cycle Explore & Define)
 ```
 •일반 대화 중 AI가 악순환 패턴을 감지하면 사이클 탐색 모드로 전환.
 •데이터 캐싱: 양측이 동일한 탐색 질문을 받을 수 있도록 DB에 질문 캐싱 처리.
@@ -52,7 +53,7 @@
 
 ```
 
-📊 결과 보고서 및 피드백 (Report & Feedback) 
+## 📊 결과 보고서 및 피드백 (Report & Feedback) 
 ```
 •상담 종료 조건(Progress 90 이상) 달성 시, 또는 원할 때 언제든 AI에게 보고서 생성 요청 가능.
 •세션 종료 후, 서비스에 대한 별점(1~5점) 및 후기 제출 기능 제공 (중복 방지 처리 완료).
@@ -70,7 +71,7 @@
 
 <br/>
 
-## 5.2 Frotend
+## 5.2 Frontend
 |  |  |  |
 |-----------------|-----------------|-----------------|
 | React    |  <img src="https://github.com/user-attachments/assets/e3b49dbb-981b-4804-acf9-012c854a2fd2" alt="React" width="100"> | 18.3.1    |
