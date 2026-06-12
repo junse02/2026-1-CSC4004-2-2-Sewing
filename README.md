@@ -5,7 +5,7 @@
 <br/>
 <br/>
 
-# 0. Getting Started (시작하기)
+# 1. Getting Started (시작하기)
 ```
 ```
 [바느질 서비스 링크](https://banuzil.netlify.app/)
@@ -13,14 +13,14 @@
 <br/>
 <br/>
 
-# 1. Project Overview (프로젝트 개요)
+# 2. Project Overview (프로젝트 개요)
 - 프로젝트 이름: 바느질
 - 프로젝트 설명: 연인 관계 중재 서비스
 
 <br/>
 <br/>
 
-# 2. Team Members (팀원 및 팀 소개)
+# 3. Team Members (팀원 및 팀 소개)
 | 박서연 | 성준서 | 손효리 | 황병부 |
 |:------:|:------:|:------:|:------:|
 | <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="박서연" width="150"> | <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="성준서" width="150"> | <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="손효리" width="150"> | <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="황병부" width="150"> |
@@ -30,46 +30,33 @@
 <br/>
 <br/>
 
-# 3. Key Features (주요 기능)
+# 4. Key Features (주요 기능)
+```
 👤 유저 관리 및 통계
-<br/>
 •JWT 기반의 안전한 회원가입 및 로그인
-<br/>
 •마이페이지 통계: 내가 참여한 총 갈등 횟수, 성공적인 합의율, 월별 갈등 발생 추이 분석 제공.
-<br/>
-<br/>
+
+```
+```
 💬 턴제 갈등 중재 시스템 (Mediation Session)
-<br/>
 •동시성 제어: 양측(남/녀)이 모두 발화를 제출해야만 다음 단계로 넘어가는 'Wait for Both' 패턴 적용. 트랜잭션 분리를 통해 중복 제출 및 데이터 충돌 방지.
-<br/>
 •EFT 단계 관리: 대기중(WAITING) -> 진행중(IN_PROGRESS) -> 종료(COMPLETED)의 상태 머신 관리.
-<br/>
-<br/>
+
+```
+```
 🔄 AI 사이클 정의 (Cycle Explore & Define)<br/>
 •일반 대화 중 AI가 악순환 패턴을 감지하면 사이클 탐색 모드로 전환.
-<br/>
 •데이터 캐싱: 양측이 동일한 탐색 질문을 받을 수 있도록 DB에 질문 캐싱 처리.
-<br/>
 •브릿지 메시지: AI가 사이클을 정의한 후, 프론트엔드 화면에 끊김 없이 상담사 말풍선이 렌더링되도록 브릿지 메시지를 DB에 자동 삽입(Insert).
-<br/>
-<br/>
+
+```
+```
 📊 결과 보고서 및 피드백 (Report & Feedback) 
 <br/>
 •상담 종료 조건(Progress 90 이상) 달성 시, 또는 원할 때 언제든 AI에게 보고서 생성 요청 가능.
 <br/>
 •세션 종료 후, 서비스에 대한 별점(1~5점) 및 후기 제출 기능 제공 (중복 방지 처리 완료).
-
-<br/>
-<br/>
-
-# 4. Tasks & Responsibilities (작업 및 역할 분담)
-|  |  |  |
-|-----------------|-----------------|-----------------|
-| 박서연    |  <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="박서연" width="100"> | <ul><li>FE</li></ul>     |
-| 성준서   |  <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="성준서" width="100">| <ul><li>BE</li></ul> |
-| 손효리   |  <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="손효리" width="100">    |<ul><li>FE</li></ul>  |
-| 황병부    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="황병부" width="100">    | <ul><li>AI</li></ul>    |
-
+```
 <br/>
 <br/>
 
@@ -80,7 +67,7 @@
 | HTML5    |<img src="https://github.com/user-attachments/assets/2e122e74-a28b-4ce7-aff6-382959216d31" alt="HTML5" width="100">| 
 | CSS3    |   <img src="https://github.com/user-attachments/assets/c531b03d-55a3-40bf-9195-9ff8c4688f13" alt="CSS3" width="100">|
 | Javascript    |  <img src="https://github.com/user-attachments/assets/4a7d7074-8c71-48b4-8652-7431477669d1" alt="Javascript" width="100"> | 
-| JAVA 21 |
+| JAVA 21 | <img src = "https://github.com/user-attachments/assets/9f921738-37a7-42c7-83c4-965047b07bf2" alt = "Java" width = "100"> |
 
 <br/>
 
@@ -88,17 +75,16 @@
 |  |  |  |
 |-----------------|-----------------|-----------------|
 | React    |  <img src="https://github.com/user-attachments/assets/e3b49dbb-981b-4804-acf9-012c854a2fd2" alt="React" width="100"> | 18.3.1    |
-| StyledComponents    |  <img src="https://github.com/user-attachments/assets/c9b26078-5d79-40cc-b120-69d9b3882786" alt="StyledComponents" width="100">| 6.1.12   |
-| MaterialUI    |  <img src="https://github.com/user-attachments/assets/75a46fa7-ebc0-4a9d-b648-c589f87c4b55" alt="MUI" width="100">    | 5.0.0  |
-| DayJs    |  <img src="https://github.com/user-attachments/assets/3632d7d6-8d43-4dd5-ba7a-501a2bc3a3e4" alt="DayJs" width="100">    | 1.11.12    |
+| TypeScript    |  <img src="https://github.com/user-attachments/assets/6602612c-afec-4589-b7f1-6ab35ac0ea2d" alt="StyledComponents" width="100">|    |
+
 
 <br/>
 
 ## 5.3 Backend
 |  |  |  |
 |-----------------|-----------------|-----------------|
-| Spring Boot    |  <img width="100" height="150" alt="SPB" src="https://github.com/user-attachments/assets/474e5c7d-406a-4c14-a18c-a2cae48aafce" />    | 4.0.5    |
-| PostgreSQL     |  <img width="100" height="150" alt="Image" src="https://github.com/user-attachments/assets/91164609-0638-4fa5-b101-c4339e10b162" />  | 17.9 |
+| Spring Boot    |  <img width="130" height="100" alt="SPB" src="https://github.com/user-attachments/assets/474e5c7d-406a-4c14-a18c-a2cae48aafce" />    | 4.0.5    |
+| SUPABASE    |  <img width="130" height="100" alt="Image" src="https://github.com/user-attachments/assets/6511ec24-c4b3-4536-894c-b18758ae0210" />  |  |
 
 <br/>
 
@@ -106,12 +92,13 @@
 |  |  |
 |-----------------|-----------------|
 | Git    |  <img src="https://github.com/user-attachments/assets/483abc38-ed4d-487c-b43a-3963b33430e6" alt="git" width="100">    |
-| Git Kraken    |  <img src="https://github.com/user-attachments/assets/32c615cb-7bc0-45cd-91ea-0d1450bfc8a9" alt="git kraken" width="100">    |
+| Swagger   |  <img src="https://github.com/user-attachments/assets/9b460426-9a58-4606-bbb5-a891b380fd15" alt="swagger ui" width="140">    |
 | Notion    |  <img src="https://github.com/user-attachments/assets/34141eb9-deca-416a-a83f-ff9543cc2f9a" alt="Notion" width="100">    |
 
 <br/>
 
 # 6. Project Structure (프로젝트 구조)
+```
 src/main/java/com/mediator/cider/
 ├── global/                           # 전역 설정 및 공통 로직
 │   ├── config/                       # SecurityConfig, CorsConfig 등
@@ -136,7 +123,7 @@ src/main/java/com/mediator/cider/
 │   │   └── entity/                   # Feedback 엔티티
 │   │
 │   └── attachment/                   # [첨부파일/애착유형 도메인]
-
+```
 <br/>
 <br/>
 
@@ -169,34 +156,28 @@ console.log("Hello World!");
 
 
 ## 명명 규칙
-* 상수 : 영문 대문자 + 스네이크 케이스
-```
-const NAME_ROLE;
-```
-* 변수 & 함수 : 카멜케이스
-```
-// state
-const [isLoading, setIsLoading] = useState(false);
-const [isLoggedIn, setIsLoggedIn] = useState(false);
-const [errorMessage, setErrorMessage] = useState('');
-const [currentUser, setCurrentUser] = useState(null);
+    // state
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [currentUser, setCurrentUser] = useState(null);
 
-// 배열 - 복수형 이름 사용
-const datas = [];
+    // 배열 - 복수형 이름 사용
+    const datas = [];
 
-// 정규표현식: 'r'로 시작
-const = rName = /.*/;
+    // 정규표현식: 'r'로 시작
+    const rName = /.*/;
 
-// 이벤트 핸들러: 'on'으로 시작
-const onClick = () => {};
-const onChange = () => {};
+    // 이벤트 핸들러: 'on'으로 시작
+    const onClick = () => {};
+    const onChange = () => {};
 
-// 반환 값이 불린인 경우: 'is'로 시작
-const isLoading = false;
+    // 반환 값이 불린인 경우: 'is'로 시작
+    const isLoading = false;
 
-// Fetch함수: method(get, post, put, del)로 시작
-const getEnginList = () => {...}
-```
+    // Fetch함수: method(get, post, put, del)로 시작
+    const getEnginList = () => {...}
+    
 
 <br/>
 
@@ -311,23 +292,3 @@ chore : 빌드 업무 수정, 패키지 매니저 수정
 ```
 
 <br/>
-
-## 커밋 예시
-```
-== ex1
-✨Feat: "회원 가입 기능 구현"
-
-SMS, 이메일 중복확인 API 개발
-
-== ex2
-📚chore: styled-components 라이브러리 설치
-
-UI개발을 위한 라이브러리 styled-components 설치
-```
-
-<br/>
-<br/>
-
-# 10. 컨벤션 수행 결과
-<img width="100%" alt="코드 컨벤션" src="https://github.com/user-attachments/assets/0dc218c0-369f-45d2-8c6d-cdedc81169b4">
-<img width="100%" alt="깃플로우" src="https://github.com/user-attachments/assets/2a4d1332-acc2-4292-9815-d122f5aea77c">
