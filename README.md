@@ -24,36 +24,40 @@
 | 박서연 | 성준서 | 손효리 | 황병부 |
 |:------:|:------:|:------:|:------:|
 | <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="박서연" width="150"> | <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="성준서" width="150"> | <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="손효리" width="150"> | <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="황병부" width="150"> |
-| PL | FE | FE | FE |
+| FE | BE | FE | AI |
 | [GitHub](https://github.com/seoyeon435) | [GitHub](https://github.com/junse02) | [GitHub](https://github.com/dogdevelophoyri) | [GitHub](https://github.com/GGARA02) |
 
 <br/>
 <br/>
 
 # 3. Key Features (주요 기능)
-- **회원가입**:
-  - 회원가입 시 DB에 유저정보가 등록됩니다.
-  - 심리테스트를 통해 자신의 심리 성향을 저장합니다.
-
-- **로그인**:
-  - 사용자 인증 정보를 통해 로그인합니다.
-
-- **진단받기**:
-  - 갈등을 입력하여 중재 받습니다.
-
-- **관계 추가**:
-  - 친구 추가를 합니다.
-
-- **갈등 입력**:
-  - 텍스트로 상황을 입력받습니다.
-
-- **분석 레포트**:
-  - 갈등이 해결되면 요약 레포트를 생성합니다.
-
-- **마이페이지**:
-  - 갈등 레포트 목록
-  - 본인 성향 수정
-  - 친구 관리
+👤 유저 관리 및 통계
+<br/>
+•JWT 기반의 안전한 회원가입 및 로그인
+<br/>
+•마이페이지 통계: 내가 참여한 총 갈등 횟수, 성공적인 합의율, 월별 갈등 발생 추이 분석 제공.
+<br/>
+<br/>
+💬 턴제 갈등 중재 시스템 (Mediation Session)
+<br/>
+•동시성 제어: 양측(남/녀)이 모두 발화를 제출해야만 다음 단계로 넘어가는 'Wait for Both' 패턴 적용. 트랜잭션 분리를 통해 중복 제출 및 데이터 충돌 방지.
+<br/>
+•EFT 단계 관리: 대기중(WAITING) -> 진행중(IN_PROGRESS) -> 종료(COMPLETED)의 상태 머신 관리.
+<br/>
+<br/>
+🔄 AI 사이클 정의 (Cycle Explore & Define)<br/>
+•일반 대화 중 AI가 악순환 패턴을 감지하면 사이클 탐색 모드로 전환.
+<br/>
+•데이터 캐싱: 양측이 동일한 탐색 질문을 받을 수 있도록 DB에 질문 캐싱 처리.
+<br/>
+•브릿지 메시지: AI가 사이클을 정의한 후, 프론트엔드 화면에 끊김 없이 상담사 말풍선이 렌더링되도록 브릿지 메시지를 DB에 자동 삽입(Insert).
+<br/>
+<br/>
+📊 결과 보고서 및 피드백 (Report & Feedback) 
+<br/>
+•상담 종료 조건(Progress 90 이상) 달성 시, 또는 원할 때 언제든 AI에게 보고서 생성 요청 가능.
+<br/>
+•세션 종료 후, 서비스에 대한 별점(1~5점) 및 후기 제출 기능 제공 (중복 방지 처리 완료).
 
 <br/>
 <br/>
@@ -61,10 +65,10 @@
 # 4. Tasks & Responsibilities (작업 및 역할 분담)
 |  |  |  |
 |-----------------|-----------------|-----------------|
-| 박서연    |  <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="박서연" width="100"> | <ul><li>프로젝트 계획 및 관리</li><li>팀 리딩 및 커뮤니케이션</li><li>커스텀훅 개발</li></ul>     |
-| 성준서   |  <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="성준서" width="100">| <ul><li>메인 페이지 개발</li><li>동아리 만들기 페이지 개발</li><li>커스텀훅 개발</li></ul> |
-| 손효리   |  <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="손효리" width="100">    |<ul><li>홈 페이지 개발</li><li>로그인 페이지 개발</li><li>동아리 찾기 페이지 개발</li><li>동아리 프로필 페이지 개발</li><li>커스텀훅 개발</li></ul>  |
-| 황병부    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="황병" width="100">    | <ul><li>회원가입 페이지 개발</li><li>마이 프로필 페이지 개발</li><li>커스텀훅 개발</li></ul>    |
+| 박서연    |  <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="박서연" width="100"> | <ul><li>FE</li></ul>     |
+| 성준서   |  <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="성준서" width="100">| <ul><li>BE</li></ul> |
+| 손효리   |  <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="손효리" width="100">    |<ul><li>FE</li></ul>  |
+| 황병부    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="황병부" width="100">    | <ul><li>AI</li></ul>    |
 
 <br/>
 <br/>
@@ -108,25 +112,30 @@
 <br/>
 
 # 6. Project Structure (프로젝트 구조)
-```plaintext
-project/
-├── public/
-│   ├── index.html           # HTML 템플릿 파일
-│   └── favicon.ico          # 아이콘 파일
-├── src/
-│   ├── assets/              # 이미지, 폰트 등 정적 파일
-│   ├── components/          # 재사용 가능한 UI 컴포넌트
-│   ├── hooks/               # 커스텀 훅 모음
-│   ├── pages/               # 각 페이지별 컴포넌트
-│   ├── App.js               # 메인 애플리케이션 컴포넌트
-│   ├── index.js             # 엔트리 포인트 파일
-│   ├── index.css            # 전역 css 파일
-│   ├── firebaseConfig.js    # firebase 인스턴스 초기화 파일
-│   package-lock.json    # 정확한 종속성 버전이 기록된 파일로, 일관된 빌드를 보장
-│   package.json         # 프로젝트 종속성 및 스크립트 정의
-├── .gitignore               # Git 무시 파일 목록
-└── README.md                # 프로젝트 개요 및 사용법
-```
+src/main/java/com/mediator/cider/
+├── global/                           # 전역 설정 및 공통 로직
+│   ├── config/                       # SecurityConfig, CorsConfig 등
+│   ├── auth/                         # JwtAuthenticationFilter 등 보안 필터
+│   ├── common/                       # BaseTimeEntity 등 공통 엔티티
+│   └── JwtProvider.java              # JWT 발급 및 검증 유틸
+│
+├── domain/                           # 핵심 비즈니스 도메인
+│   ├── user/                         # [회원 도메인]
+│   │   ├── controller/               # 회원가입, 로그인, 마이페이지 API
+│   │   ├── service/                  # 회원 통계(합의율 등) 계산 로직
+│   │   └── entity/                   # User 엔티티
+│   │
+│   ├── mediation/                    # [갈등 중재(Sewing) 핵심 도메인]
+│   │   ├── controller/               # 방 생성, 라운드 제출, 사이클 API
+│   │   ├── service/                  # 턴제 로직, 상태 검증, AiServerClient 연동
+│   │   ├── entity/                   # MediationSession, MediationRecord, Report
+│   │   └── dto/                      # 프론트 통신용 DTO 및 AI 서버 통신용 DTO
+│   │
+│   ├── feedback/                     # [피드백 도메인]
+│   │   ├── controller/               # 별점 및 후기 제출 API
+│   │   └── entity/                   # Feedback 엔티티
+│   │
+│   └── attachment/                   # [첨부파일/애착유형 도메인]
 
 <br/>
 <br/>
